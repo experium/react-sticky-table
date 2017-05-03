@@ -47,9 +47,9 @@ class StickyTable extends Component {
       this.yScrollbar = this.table.querySelector('#y-scrollbar');
       this.xWrapper = this.table.querySelector('#sticky-table-x-wrapper');
       this.yWrapper = this.table.querySelector('#sticky-table-y-wrapper');
-      this.stickyHeader = this.table.querySelector('#sticky-header');
-      this.stickyColumn = this.table.querySelector('#sticky-column');
-      this.stickyCorner = this.table.querySelector('#sticky-corner');
+      this.stickyHeader = this.table.querySelector('#sticky-table-header');
+      this.stickyColumn = this.table.querySelector('#sticky-table-column');
+      this.stickyCorner = this.table.querySelector('#sticky-table-corner');
 
       this.xWrapper.addEventListener('scroll', this.onScrollX);
 
@@ -345,14 +345,14 @@ class StickyTable extends Component {
       <div className={'sticky-table ' + (this.props.className || '')} id={'sticky-table-' + this.id}>
         <div id='x-scrollbar'><div></div></div>
         <div id='y-scrollbar'><div></div></div>
-        <div className='sticky-corner' id='sticky-corner'>
+        <div className='sticky-table-corner' id='sticky-table-corner'>
           <Table>{stickyCorner}</Table>
         </div>
-        <div className='sticky-header' id='sticky-header'>
+        <div className='sticky-table-header' id='sticky-table-header'>
           <Table>{stickyHeader}</Table>
         </div>
         <div className='sticky-table-y-wrapper' id='sticky-table-y-wrapper'>
-          <div className='sticky-column' id='sticky-column'>
+          <div className='sticky-table-column' id='sticky-table-column'>
             <Table>{stickyColumn}</Table>
           </div>
           <div className='sticky-table-x-wrapper' id='sticky-table-x-wrapper'>

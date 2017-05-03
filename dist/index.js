@@ -132,9 +132,9 @@
           this.yScrollbar = this.table.querySelector('#y-scrollbar');
           this.xWrapper = this.table.querySelector('#sticky-table-x-wrapper');
           this.yWrapper = this.table.querySelector('#sticky-table-y-wrapper');
-          this.stickyHeader = this.table.querySelector('#sticky-header');
-          this.stickyColumn = this.table.querySelector('#sticky-column');
-          this.stickyCorner = this.table.querySelector('#sticky-corner');
+          this.stickyHeader = this.table.querySelector('#sticky-table-header');
+          this.stickyColumn = this.table.querySelector('#sticky-table-column');
+          this.stickyCorner = this.table.querySelector('#sticky-table-corner');
 
           this.xWrapper.addEventListener('scroll', this.onScrollX);
 
@@ -400,7 +400,7 @@
           ),
           _react2.default.createElement(
             'div',
-            { className: 'sticky-corner', id: 'sticky-corner' },
+            { className: 'sticky-table-corner', id: 'sticky-table-corner' },
             _react2.default.createElement(
               _Table2.default,
               null,
@@ -409,7 +409,7 @@
           ),
           _react2.default.createElement(
             'div',
-            { className: 'sticky-header', id: 'sticky-header' },
+            { className: 'sticky-table-header', id: 'sticky-table-header' },
             _react2.default.createElement(
               _Table2.default,
               null,
@@ -421,7 +421,7 @@
             { className: 'sticky-table-y-wrapper', id: 'sticky-table-y-wrapper' },
             _react2.default.createElement(
               'div',
-              { className: 'sticky-column', id: 'sticky-column' },
+              { className: 'sticky-table-column', id: 'sticky-table-column' },
               _react2.default.createElement(
                 _Table2.default,
                 null,
