@@ -1,16 +1,16 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(['exports', 'react', './Table', './Row', './Cell', 'underscore', 'nodeproxy', 'element-resize-event'], factory);
+    define(['exports', 'react', 'prop-types', './Table', './Row', './Cell', 'underscore', 'nodeproxy', 'element-resize-event'], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require('react'), require('./Table'), require('./Row'), require('./Cell'), require('underscore'), require('nodeproxy'), require('element-resize-event'));
+    factory(exports, require('react'), require('prop-types'), require('./Table'), require('./Row'), require('./Cell'), require('underscore'), require('nodeproxy'), require('element-resize-event'));
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.react, global.Table, global.Row, global.Cell, global.underscore, global.nodeproxy, global.elementResizeEvent);
+    factory(mod.exports, global.react, global.propTypes, global.Table, global.Row, global.Cell, global.underscore, global.nodeproxy, global.elementResizeEvent);
     global.index = mod.exports;
   }
-})(this, function (exports, _react, _Table, _Row, _Cell, _, proxy, elementResizeEvent) {
+})(this, function (exports, _react, _propTypes, _Table, _Row, _Cell, _, proxy, elementResizeEvent) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -19,6 +19,8 @@
   exports.Cell = exports.Row = exports.Table = exports.StickyTable = undefined;
 
   var _react2 = _interopRequireDefault(_react);
+
+  var _propTypes2 = _interopRequireDefault(_propTypes);
 
   var _Table2 = _interopRequireDefault(_Table);
 
@@ -109,8 +111,8 @@
 
       _this.suppressScroll = false;
 
-      _this.stickyColumnCount = props.stickyColumnCount === 0 ? 0 : _this.stickyHeaderCount || 1;
-      _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
+      _this.stickyColumnsCount = props.stickyColumnsCount === 0 ? 0 : _this.stickyColumnsCount || props.stickyColumnsCount || 1;
+      _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || props.stickyColumnsCount || 1;
 
       _this.onResize = _this.onResize.bind(_this);
       _this.onColumnResize = _this.onColumnResize.bind(_this);
@@ -251,7 +253,7 @@
       value: function setRowHeights() {
         var r, cellToCopy, height;
 
-        if (this.stickyColumnCount) {
+        if (this.stickyColumnsCount) {
           for (r = 0; r < this.rowCount; r++) {
             cellToCopy = this.realTable.childNodes[r].firstChild;
 
@@ -294,8 +296,9 @@
         }
       }
     }, {
-      key: 'getStickyColumn',
-      value: function getStickyColumn(rows) {
+      key: 'getStickyColumns',
+      value: function getStickyColumns(rows) {
+        var columnsCount = this.stickyColumnsCount;
         var cells;
         var stickyRows = [];
 
@@ -305,7 +308,7 @@
           stickyRows.push(_react2.default.createElement(
             _Row2.default,
             _extends({}, row.props, { id: '', key: r }),
-            cells[0]
+            cells.slice(0, columnsCount)
           ));
         }, this));
 
@@ -330,6 +333,7 @@
     }, {
       key: 'getStickyCorner',
       value: function getStickyCorner(rows) {
+        var columnsCount = this.stickyColumnsCount;
         var cells;
         var stickyCorner = [];
 
@@ -340,7 +344,7 @@
             stickyCorner.push(_react2.default.createElement(
               _Row2.default,
               _extends({}, row.props, { id: '', key: r }),
-              cells[0]
+              cells.slice(0, columnsCount)
             ));
           }
         }, this));
@@ -374,11 +378,11 @@
         this.columnCount = rows[0] && _react2.default.Children.toArray(rows[0].props.children).length || 0;
 
         if (rows.length) {
-          if (this.stickyColumnCount > 0 && this.stickyHeaderCount > 0) {
+          if (this.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
             stickyCorner = this.getStickyCorner(rows);
           }
-          if (this.stickyColumnCount > 0) {
-            stickyColumn = this.getStickyColumn(rows);
+          if (this.stickyColumnsCount > 0) {
+            stickyColumn = this.getStickyColumns(rows);
           }
           if (this.stickyHeaderCount > 0) {
             stickyHeader = this.getStickyHeader(rows);
@@ -446,8 +450,8 @@
   }(_react.Component);
 
   StickyTable.propTypes = {
-    rowCount: _react.PropTypes.number, //Including header
-    columnCount: _react.PropTypes.number
+    rowCount: _propTypes2.default.number, //Including header
+    columnCount: _propTypes2.default.number
   };
 
   exports.StickyTable = StickyTable;

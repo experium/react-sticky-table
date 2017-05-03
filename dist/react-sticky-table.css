@@ -11,7 +11,7 @@
   position: relative;
   height: 100%;
   overflow: hidden;
-  border: 2px solid #e5e5e5;
+  padding-bottom: 15px;
 }
 .sticky-table .sticky-table-corner {
   position: absolute;
@@ -19,29 +19,26 @@
   top: 0;
   z-index: 3;
 }
-.sticky-table .sticky-corner .sticky-table-cell {
-  border-right: 2px solid #e5e5e5;
-  border-bottom: 2px solid #e5e5e5;
-}
 .sticky-table .sticky-table-header {
   position: absolute;
   margin-top: -2px;
   z-index: 2;
 }
 .sticky-table .sticky-table-header .sticky-table-cell {
-  border-bottom: 2px solid #e5e5e5;
   transition: 0.2s;
 }
-.sticky-table .sticky-table-column, .sticky-table .sticky-table-header, .sticky-table .sticky-table-corner {
+.sticky-table .sticky-table-column,
+.sticky-table .sticky-table-header,
+.sticky-table .sticky-table-corner {
   background-color: #fff;
   display: block;
 }
 .sticky-table .sticky-table-column {
   position: absolute;
   z-index: 1;
-  border-right: 2px solid #e5e5e5;
 }
-.sticky-table .sticky-table-x-wrapper, .sticky-table .sticky-table-y-wrapper {
+.sticky-table .sticky-table-x-wrapper,
+.sticky-table .sticky-table-y-wrapper {
   z-index: 0;
   position: relative;
   -webkit-overflow-scrolling: touch;
@@ -69,10 +66,12 @@ Scrolling is probably 10-20x smoother.
 }
 
 /* Scrollbars */
-.sticky-table-y-wrapper::-webkit-scrollbar, .sticky-table-x-wrapper::-webkit-scrollbar {
+.sticky-table-y-wrapper::-webkit-scrollbar,
+.sticky-table-x-wrapper::-webkit-scrollbar {
   display: none;
 }
-.sticky-table #x-scrollbar, .sticky-table #y-scrollbar {
+.sticky-table #x-scrollbar,
+.sticky-table #y-scrollbar {
   position: absolute;
   background-color: transparent;
   z-index: 5;

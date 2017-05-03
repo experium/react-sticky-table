@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 var _ = require('underscore');
 var proxy = require('nodeproxy');
@@ -27,8 +28,8 @@ class StickyTable extends Component {
 
     this.suppressScroll = false;
 
-    this.stickyColumnCount = props.stickyColumnCount === 0 ? 0 : (this.stickyHeaderCount || 1);
-    this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || 1);
+    this.stickyColumnsCount = props.stickyColumnsCount === 0 ? 0 : (this.stickyColumnsCount || props.stickyColumnsCount || 1);
+    this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || props.stickyColumnsCount || 1);
 
     this.onResize = this.onResize.bind(this);
     this.onColumnResize = this.onColumnResize.bind(this);
@@ -170,7 +171,7 @@ class StickyTable extends Component {
   setRowHeights() {
     var r, cellToCopy, height;
 
-    if (this.stickyColumnCount) {
+    if (this.stickyColumnsCount) {
       for (r = 0; r < this.rowCount; r++) {
         cellToCopy = this.realTable.childNodes[r].firstChild;
 
@@ -222,7 +223,8 @@ class StickyTable extends Component {
    * @param {array} rows provided child row elements
    * @returns {array} array of <Row> elements for sticky column
    */
-  getStickyColumn(rows) {
+  getStickyColumns(rows) {
+    const columnsCount = this.stickyColumnsCount;
     var cells;
     var stickyRows = [];
 
@@ -231,7 +233,7 @@ class StickyTable extends Component {
 
       stickyRows.push(
         <Row {...row.props} id='' key={r}>
-          {cells[0]}
+          {cells.slice(0, columnsCount)}
         </Row>
       );
     }, this));
@@ -267,6 +269,7 @@ class StickyTable extends Component {
    * @returns {array} array of <Row> elements for sticky column
    */
   getStickyCorner(rows) {
+    const columnsCount = this.stickyColumnsCount;
     var cells;
     var stickyCorner = [];
 
@@ -276,7 +279,7 @@ class StickyTable extends Component {
 
         stickyCorner.push(
           <Row {...row.props} id='' key={r}>
-            {cells[0]}
+            {cells.slice(0, columnsCount)}
           </Row>
         );
       }
@@ -330,11 +333,11 @@ class StickyTable extends Component {
     this.columnCount = (rows[0] && React.Children.toArray(rows[0].props.children).length) || 0;
 
     if (rows.length) {
-      if (this.stickyColumnCount > 0 && this.stickyHeaderCount > 0) {
+      if (this.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
         stickyCorner = this.getStickyCorner(rows);
       }
-      if (this.stickyColumnCount > 0) {
-        stickyColumn = this.getStickyColumn(rows);
+      if (this.stickyColumnsCount > 0) {
+        stickyColumn = this.getStickyColumns(rows);
       }
       if (this.stickyHeaderCount > 0) {
         stickyHeader = this.getStickyHeader(rows);
