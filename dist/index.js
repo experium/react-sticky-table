@@ -108,6 +108,8 @@
 
       _this.rowCount = 0;
       _this.columnCount = 0;
+      _this.xScrollSize = 0;
+      _this.yScrollSize = 0;
 
       _this.suppressScroll = false;
 
@@ -216,16 +218,33 @@
         this.setScrollBarDims();
       }
     }, {
+      key: 'setScrollBarPaddings',
+      value: function setScrollBarPaddings() {
+        var scrollPadding = '0px 0px ' + this.xScrollSize + 'px 0px';
+        this.table.style.padding = scrollPadding;
+
+        var scrollPadding = '0px ' + this.yScrollSize + 'px 0px 0px';
+        this.xWrapper.firstChild.style.padding = scrollPadding;
+      }
+    }, {
       key: 'setScrollBarWrapperDims',
       value: function setScrollBarWrapperDims() {
+        this.xScrollbar.style.width = 'calc(100% + ' + this.yScrollSize + 'px)';
         this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
         this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
       }
     }, {
       key: 'setScrollBarDims',
       value: function setScrollBarDims() {
-        this.xScrollbar.firstChild.style.width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + 'px';
-        this.yScrollbar.firstChild.style.height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight + 'px';
+        this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
+        this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
+        this.setScrollBarPaddings();
+
+        var width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + this.yScrollSize;
+        this.xScrollbar.firstChild.style.width = width + 'px';
+
+        var height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight;
+        this.yScrollbar.firstChild.style.height = height + 'px';
       }
     }, {
       key: 'onColumnResize',

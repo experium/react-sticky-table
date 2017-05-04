@@ -11,7 +11,6 @@
   position: relative;
   height: 100%;
   overflow: hidden;
-  padding-bottom: 15px;
 }
 .sticky-table .sticky-table-corner {
   position: absolute;
@@ -49,9 +48,6 @@
 .sticky-table .sticky-table-y-wrapper {
   height: 100%;
   overflow-y: auto;
-  /* Hack to hide scrollbars */
-  padding-right: 17px;
-  margin-right: -17px;
 }
 /*
 Hack to make table paint on it's own layer.
@@ -82,7 +78,6 @@ Scrolling is probably 10-20x smoother.
   left: 0px;
   bottom: 0px;
   height: 20px;
-  width: calc(100%);
 }
 .sticky-table #y-scrollbar {
   right: 0px;

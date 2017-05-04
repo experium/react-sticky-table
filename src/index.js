@@ -25,6 +25,8 @@ class StickyTable extends Component {
 
     this.rowCount = 0;
     this.columnCount = 0;
+    this.xScrollSize = 0;
+    this.yScrollSize = 0;
 
     this.suppressScroll = false;
 
@@ -130,14 +132,31 @@ class StickyTable extends Component {
     this.setScrollBarDims();
   }
 
+  setScrollBarPaddings() {
+    var scrollPadding = '0px 0px ' + this.xScrollSize + 'px 0px';
+    this.table.style.padding = scrollPadding;
+
+
+    var scrollPadding = '0px ' + this.yScrollSize + 'px 0px 0px';
+    this.xWrapper.firstChild.style.padding = scrollPadding;
+  }
+
   setScrollBarWrapperDims() {
+    this.xScrollbar.style.width = 'calc(100% + ' + this.yScrollSize + 'px)';
     this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
     this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
   }
 
   setScrollBarDims() {
-    this.xScrollbar.firstChild.style.width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + 'px';
-    this.yScrollbar.firstChild.style.height = (this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight) + 'px';
+    this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
+    this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
+    this.setScrollBarPaddings();
+
+    var width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + this.yScrollSize;
+    this.xScrollbar.firstChild.style.width = width + 'px';
+
+    var height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight;
+    this.yScrollbar.firstChild.style.height = height + 'px';
   }
 
   /**
