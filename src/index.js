@@ -28,8 +28,7 @@ class StickyTable extends Component {
 
     this.suppressScroll = false;
 
-    this.stickyColumnsCount = props.stickyColumnsCount === 0 ? 0 : (this.stickyColumnsCount || props.stickyColumnsCount || 1);
-    this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || props.stickyColumnsCount || 1);
+    this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || 1);
 
     this.onResize = this.onResize.bind(this);
     this.onColumnResize = this.onColumnResize.bind(this);
@@ -132,15 +131,12 @@ class StickyTable extends Component {
   }
 
   setScrollBarWrapperDims() {
-    this.xScrollbar.style.width = 'calc(100% - ' + this.stickyColumn.offsetWidth + 'px)';
-    this.xScrollbar.style.left = this.stickyColumn.offsetWidth + 'px';
-
     this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
     this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
   }
 
   setScrollBarDims() {
-    this.xScrollbar.firstChild.style.width = (this.getSizeWithoutBoxSizing(this.realTable.firstChild).width - this.stickyColumn.offsetWidth) + 'px';
+    this.xScrollbar.firstChild.style.width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + 'px';
     this.yScrollbar.firstChild.style.height = (this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight) + 'px';
   }
 
@@ -149,15 +145,17 @@ class StickyTable extends Component {
    * @returns {null} no return necessary
    */
   onColumnResize() {
-    var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[0];
-    var cell = this.realTable.firstChild.firstChild;
-    var dims = this.getSizeWithoutBoxSizing(columnCell);
+    if (this.props.stickyColumnsCount) {
+      for (var c = 0; c < this.props.stickyColumnsCount; c++) {
+        var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[c];
+        var cell = this.realTable.firstChild.childNodes[c];
+        var dims = this.getSizeWithoutBoxSizing(columnCell);
 
-    if (cell) {
-      cell.style.width = dims.width + 'px';
-      cell.style.minWidth = dims.width + 'px';
-      //cell.style.height = dims.height + 'px';
-      //cell.style.minHeight = dims.height + 'px';
+        if (cell) {
+          cell.style.width = dims.width + 'px';
+          cell.style.minWidth = dims.width + 'px';
+        }
+      }
     }
 
     this.onResize();
@@ -171,7 +169,7 @@ class StickyTable extends Component {
   setRowHeights() {
     var r, cellToCopy, height;
 
-    if (this.stickyColumnsCount) {
+    if (this.props.stickyColumnsCount) {
       for (r = 0; r < this.rowCount; r++) {
         cellToCopy = this.realTable.childNodes[r].firstChild;
 
@@ -224,7 +222,7 @@ class StickyTable extends Component {
    * @returns {array} array of <Row> elements for sticky column
    */
   getStickyColumns(rows) {
-    const columnsCount = this.stickyColumnsCount;
+    const columnsCount = this.props.stickyColumnsCount;
     var cells;
     var stickyRows = [];
 
@@ -269,7 +267,7 @@ class StickyTable extends Component {
    * @returns {array} array of <Row> elements for sticky column
    */
   getStickyCorner(rows) {
-    const columnsCount = this.stickyColumnsCount;
+    const columnsCount = this.props.stickyColumnsCount;
     var cells;
     var stickyCorner = [];
 
@@ -333,10 +331,10 @@ class StickyTable extends Component {
     this.columnCount = (rows[0] && React.Children.toArray(rows[0].props.children).length) || 0;
 
     if (rows.length) {
-      if (this.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
+      if (this.props.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
         stickyCorner = this.getStickyCorner(rows);
       }
-      if (this.stickyColumnsCount > 0) {
+      if (this.props.stickyColumnsCount > 0) {
         stickyColumn = this.getStickyColumns(rows);
       }
       if (this.stickyHeaderCount > 0) {

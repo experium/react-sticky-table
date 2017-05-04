@@ -111,8 +111,7 @@
 
       _this.suppressScroll = false;
 
-      _this.stickyColumnsCount = props.stickyColumnsCount === 0 ? 0 : _this.stickyColumnsCount || props.stickyColumnsCount || 1;
-      _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || props.stickyColumnsCount || 1;
+      _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
 
       _this.onResize = _this.onResize.bind(_this);
       _this.onColumnResize = _this.onColumnResize.bind(_this);
@@ -219,30 +218,29 @@
     }, {
       key: 'setScrollBarWrapperDims',
       value: function setScrollBarWrapperDims() {
-        this.xScrollbar.style.width = 'calc(100% - ' + this.stickyColumn.offsetWidth + 'px)';
-        this.xScrollbar.style.left = this.stickyColumn.offsetWidth + 'px';
-
         this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
         this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
       }
     }, {
       key: 'setScrollBarDims',
       value: function setScrollBarDims() {
-        this.xScrollbar.firstChild.style.width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width - this.stickyColumn.offsetWidth + 'px';
+        this.xScrollbar.firstChild.style.width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + 'px';
         this.yScrollbar.firstChild.style.height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight + 'px';
       }
     }, {
       key: 'onColumnResize',
       value: function onColumnResize() {
-        var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[0];
-        var cell = this.realTable.firstChild.firstChild;
-        var dims = this.getSizeWithoutBoxSizing(columnCell);
+        if (this.props.stickyColumnsCount) {
+          for (var c = 0; c < this.props.stickyColumnsCount; c++) {
+            var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[c];
+            var cell = this.realTable.firstChild.childNodes[c];
+            var dims = this.getSizeWithoutBoxSizing(columnCell);
 
-        if (cell) {
-          cell.style.width = dims.width + 'px';
-          cell.style.minWidth = dims.width + 'px';
-          //cell.style.height = dims.height + 'px';
-          //cell.style.minHeight = dims.height + 'px';
+            if (cell) {
+              cell.style.width = dims.width + 'px';
+              cell.style.minWidth = dims.width + 'px';
+            }
+          }
         }
 
         this.onResize();
@@ -253,7 +251,7 @@
       value: function setRowHeights() {
         var r, cellToCopy, height;
 
-        if (this.stickyColumnsCount) {
+        if (this.props.stickyColumnsCount) {
           for (r = 0; r < this.rowCount; r++) {
             cellToCopy = this.realTable.childNodes[r].firstChild;
 
@@ -298,7 +296,7 @@
     }, {
       key: 'getStickyColumns',
       value: function getStickyColumns(rows) {
-        var columnsCount = this.stickyColumnsCount;
+        var columnsCount = this.props.stickyColumnsCount;
         var cells;
         var stickyRows = [];
 
@@ -333,7 +331,7 @@
     }, {
       key: 'getStickyCorner',
       value: function getStickyCorner(rows) {
-        var columnsCount = this.stickyColumnsCount;
+        var columnsCount = this.props.stickyColumnsCount;
         var cells;
         var stickyCorner = [];
 
@@ -378,10 +376,10 @@
         this.columnCount = rows[0] && _react2.default.Children.toArray(rows[0].props.children).length || 0;
 
         if (rows.length) {
-          if (this.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
+          if (this.props.stickyColumnsCount > 0 && this.stickyHeaderCount > 0) {
             stickyCorner = this.getStickyCorner(rows);
           }
-          if (this.stickyColumnsCount > 0) {
+          if (this.props.stickyColumnsCount > 0) {
             stickyColumn = this.getStickyColumns(rows);
           }
           if (this.stickyHeaderCount > 0) {

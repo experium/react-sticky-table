@@ -12,7 +12,6 @@
 }
 .sticky-table .sticky-table-header {
   position: absolute;
-  margin-top: -2px;
   z-index: 2;
 }
 .sticky-table .sticky-table-header .sticky-table-cell {
@@ -74,7 +73,7 @@ Scrolling is probably 10-20x smoother.
   left: 0px;
   bottom: 0px;
   height: 20px;
-  width: 100%;
+  width: calc(100%);
 }
 .sticky-table #y-scrollbar {
   right: 0px;

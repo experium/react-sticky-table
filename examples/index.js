@@ -5,6 +5,7 @@ import '../src/sticky-table.css';
 import '../src/Cell/index.css';
 import '../src/Row/index.css';
 import '../src/Table/index.css';
+import './index.css';
 import { StickyTable, Table, Row, Cell } from '../src/index';
 
 class Example extends Component {
@@ -24,7 +25,7 @@ class Example extends Component {
 
         return (
             <div style={{width: '700px', height: '300px'}}>
-                <StickyTable stickyColumnsCount={1}>
+                <StickyTable stickyColumnsCount={2}>
                     {rows}
                 </StickyTable>
             </div>
