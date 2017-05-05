@@ -302,7 +302,7 @@
               }
             }
           }
-          console.log(stickyWidth);
+
           this.stickyColumn.firstChild.style.width = stickyWidth + 'px';
           this.stickyColumn.firstChild.style.minWidth = stickyWidth + 'px';
         }
