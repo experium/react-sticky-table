@@ -33,7 +33,6 @@ class StickyTable extends Component {
     this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || 1);
 
     this.onResize = this.onResize.bind(this);
-    this.onColumnResize = this.onColumnResize.bind(this);
     this.setScrollBarWrapperDims = this.setScrollBarWrapperDims.bind(this);
     this.onScrollX = this.onScrollX.bind(this);
     this.scrollXScrollbar = _.throttle(this.scrollXScrollbar.bind(this), 30);
@@ -55,7 +54,6 @@ class StickyTable extends Component {
 
       this.xWrapper.addEventListener('scroll', this.onScrollX);
 
-      elementResizeEvent(this.stickyColumn, this.onColumnResize);
       elementResizeEvent(this.realTable, this.onResize);
 
       this.onResize();
@@ -167,28 +165,6 @@ class StickyTable extends Component {
   }
 
   /**
-   * Handle sticky column resize events
-   * @returns {null} no return necessary
-   */
-  onColumnResize() {
-    if (this.props.stickyColumnsCount) {
-      for (var c = 0; c < this.props.stickyColumnsCount; c++) {
-        var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[c];
-        var cell = this.realTable.firstChild.childNodes[c];
-        var dims = this.getSizeWithoutBoxSizing(columnCell);
-
-        if (cell) {
-          cell.style.width = dims.width + 'px';
-          cell.style.minWidth = dims.width + 'px';
-        }
-      }
-    }
-
-    this.onResize();
-    this.setScrollBarWrapperDims();
-  }
-
-  /**
    * Get the height of each row in the table
    * @returns {null} no return necessary
    */
@@ -246,7 +222,7 @@ class StickyTable extends Component {
           }
         }
       }
-
+      console.log(stickyWidth);
       this.stickyColumn.firstChild.style.width = stickyWidth + 'px';
       this.stickyColumn.firstChild.style.minWidth = stickyWidth + 'px';
     }
@@ -341,12 +317,7 @@ class StickyTable extends Component {
    */
   getSizeWithoutBoxSizing(node) {
     var nodeStyle = this.getStyle(node);
-    var width = node.offsetWidth
-      - parseFloat(nodeStyle.paddingLeft)
-      - parseFloat(nodeStyle.paddingRight)
-      - parseInt(nodeStyle.borderLeftWidth, 10)
-      - parseInt(nodeStyle.borderRightWidth, 10);
-
+    var width = node.getBoundingClientRect().width;
     var height = node.getBoundingClientRect().height;
 
     return {width, height};

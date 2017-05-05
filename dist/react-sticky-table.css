@@ -1,5 +1,6 @@
 .sticky-table .sticky-table-cell {
   display: table-cell;
+  box-sizing: border-box;
 }
 .sticky-table .sticky-table-row {
   display: table-row;

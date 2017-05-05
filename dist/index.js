@@ -134,7 +134,6 @@
       _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
 
       _this.onResize = _this.onResize.bind(_this);
-      _this.onColumnResize = _this.onColumnResize.bind(_this);
       _this.setScrollBarWrapperDims = _this.setScrollBarWrapperDims.bind(_this);
       _this.onScrollX = _this.onScrollX.bind(_this);
       _this.scrollXScrollbar = _.throttle(_this.scrollXScrollbar.bind(_this), 30);
@@ -159,7 +158,6 @@
 
           this.xWrapper.addEventListener('scroll', this.onScrollX);
 
-          elementResizeEvent(this.stickyColumn, this.onColumnResize);
           elementResizeEvent(this.realTable, this.onResize);
 
           this.onResize();
@@ -252,25 +250,6 @@
         this.yScrollbar.firstChild.style.height = height + 'px';
       }
     }, {
-      key: 'onColumnResize',
-      value: function onColumnResize() {
-        if (this.props.stickyColumnsCount) {
-          for (var c = 0; c < this.props.stickyColumnsCount; c++) {
-            var columnCell = this.stickyColumn.firstChild.firstChild.childNodes[c];
-            var cell = this.realTable.firstChild.childNodes[c];
-            var dims = this.getSizeWithoutBoxSizing(columnCell);
-
-            if (cell) {
-              cell.style.width = dims.width + 'px';
-              cell.style.minWidth = dims.width + 'px';
-            }
-          }
-        }
-
-        this.onResize();
-        this.setScrollBarWrapperDims();
-      }
-    }, {
       key: 'setRowHeights',
       value: function setRowHeights() {
         var r, cellToCopy, height;
@@ -323,7 +302,7 @@
               }
             }
           }
-
+          console.log(stickyWidth);
           this.stickyColumn.firstChild.style.width = stickyWidth + 'px';
           this.stickyColumn.firstChild.style.minWidth = stickyWidth + 'px';
         }
@@ -395,8 +374,7 @@
       key: 'getSizeWithoutBoxSizing',
       value: function getSizeWithoutBoxSizing(node) {
         var nodeStyle = this.getStyle(node);
-        var width = node.offsetWidth - parseFloat(nodeStyle.paddingLeft) - parseFloat(nodeStyle.paddingRight) - parseInt(nodeStyle.borderLeftWidth, 10) - parseInt(nodeStyle.borderRightWidth, 10);
-
+        var width = node.getBoundingClientRect().width;
         var height = node.getBoundingClientRect().height;
 
         return { width: width, height: height };
