@@ -347,11 +347,7 @@ class StickyTable extends Component {
       - parseInt(nodeStyle.borderLeftWidth, 10)
       - parseInt(nodeStyle.borderRightWidth, 10);
 
-    var height = node.offsetHeight
-      - parseFloat(nodeStyle.paddingTop)
-      - parseFloat(nodeStyle.paddingBottom)
-      - parseInt(nodeStyle.borderTopWidth, 10)
-      - parseInt(nodeStyle.borderBottomWidth, 10);
+    var height = node.getBoundingClientRect().height;
 
     return {width, height};
   }
