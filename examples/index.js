@@ -17,7 +17,11 @@ class Example extends Component {
             cells = [];
 
             for (var c = 0; c < 50; c++) {
-                cells.push(<Cell key={c}>{r + (r === 0 ? 'Header' : 'Cell') + c}</Cell>);
+                cells.push(
+                    <Cell key={c}>
+                        {r === 0 ? 'HEAD' + c : 'Cell' + r + c + '\n Content'}
+                    </Cell>
+                );
             }
 
             rows.push(<Row key={r}>{cells}</Row>);

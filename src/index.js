@@ -78,29 +78,36 @@ class StickyTable extends Component {
   addScrollBarEventHandlers() {
     //X Scrollbars
     this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
-    this.xScrollbar.addEventListener('scroll', proxy(() => {
-      if (!this.suppressScroll) {
-        this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
-        this.suppressScroll = true;
-      } else {
-        this.suppressScroll = false;
-      }
-    }, this));
+    this.xScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarX, 30), this));
 
     //Y Scrollbars
     this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
-    this.yScrollbar.addEventListener('scroll', proxy(() => {
-      if (!this.suppressScroll) {
-        this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
-        this.suppressScroll = true;
-      } else {
-        this.suppressScroll = false;
-      }
-    }, this));
+    this.yScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarY, 30), this));
+  }
+
+  onScrollBarX = () => {
+    if (!this.suppressScroll) {
+      this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
+      this.suppressScroll = true;
+    } else {
+      this.suppressScroll = false;
+    }
+  }
+
+  onScrollBarY = () => {
+    if (!this.suppressScroll) {
+      this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
+      this.suppressScroll = true;
+    } else {
+      this.suppressScroll = false;
+    }
   }
 
   onScrollX() {
-    var scrollLeft = Math.max(this.xWrapper.scrollLeft, 0); //Can't have it being less than 0...
+    var scrollLeftWrapper = Math.max(this.xWrapper.scrollLeft, 0);
+    var scrollLeftScrollbar = Math.max(this.xScrollbar.scrollLeft, 0);
+    var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
+
     this.stickyHeader.style.transform = 'translate(' + (-1 * scrollLeft) + 'px, 0)';
   }
 
@@ -210,27 +217,38 @@ class StickyTable extends Component {
    * @returns {null} no return necessary
    */
   setColumnWidths() {
-    var c, cellToCopy, cellStyle, width, cell;
+    var c, cellToCopy, cellStyle, width, cell, stickyWidth;
 
     if (this.stickyHeaderCount) {
+      stickyWidth = 0;
+
       for (c = 0; c < this.columnCount; c++) {
         cellToCopy = this.realTable.firstChild.childNodes[c];
 
         if (cellToCopy) {
           width = this.getSizeWithoutBoxSizing(cellToCopy).width;
+
           cell = this.table.querySelector('#sticky-header-cell-' + c);
 
           cell.style.width = width + 'px';
           cell.style.minWidth = width + 'px';
 
-          if (c === 0 && this.stickyCorner.firstChild.firstChild) {
-            cell = this.stickyCorner.firstChild.firstChild.firstChild;
-
+          if (this.stickyCorner.firstChild.firstChild.childNodes[c]) {
+            cell = this.stickyCorner.firstChild.firstChild.childNodes[c];
             cell.style.width = width + 'px';
             cell.style.minWidth = width + 'px';
+
+            cell = this.stickyColumn.firstChild.firstChild.childNodes[c];
+            cell.style.width = width + 'px';
+            cell.style.minWidth = width + 'px';
+
+            stickyWidth += width;
           }
         }
       }
+
+      this.stickyColumn.firstChild.style.width = stickyWidth + 'px';
+      this.stickyColumn.firstChild.style.minWidth = stickyWidth + 'px';
     }
   }
 
