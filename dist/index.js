@@ -189,6 +189,8 @@
       _this.suppressScroll = false;
 
       _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
+
+      _this.isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
       return _this;
     }
 
@@ -255,7 +257,10 @@
       value: function setScrollBarDims() {
         this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
         this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
-        this.setScrollBarPaddings();
+
+        if (!this.isFirefox) {
+          this.setScrollBarPaddings();
+        }
 
         var width = this.getSize(this.realTable.firstChild).width + this.yScrollSize;
         this.xScrollbar.firstChild.style.width = width + 'px';
