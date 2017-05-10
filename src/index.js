@@ -46,9 +46,10 @@ class StickyTable extends PureComponent {
       this.stickyHeader = this.table.querySelector('#sticky-table-header');
       this.stickyColumn = this.table.querySelector('#sticky-table-column');
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
+      this.setScrollData();
 
-      this.onScrollEnd = _.debounce(this.handleScrollEnd, 200);
-      this.onScroll = _.throttle(this.handleScroll, 30, {trailing: true, leading: false});
+      this.onScrollEnd = _.debounce(this.handleScrollEnd, 100);
+      this.onScroll = _.throttle(this.handleScroll, 50, {trailing: true, leading: true});
 
       this.xWrapper.addEventListener('scroll', this.onScrollX);
 
@@ -77,12 +78,23 @@ class StickyTable extends PureComponent {
    */
   addScrollBarEventHandlers() {
     //X Scrollbars
-    this.xWrapper.addEventListener('scroll', _.throttle(this.scrollXScrollbar, 30, {trailing: true, leading: true}));
-    this.xScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarX, 30, {trailing: true, leading: true}));
+    this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
+    this.xScrollbar.addEventListener('scroll', this.onScrollBarX);
 
     //Y Scrollbars
-    this.yWrapper.addEventListener('scroll', _.throttle(this.scrollYScrollbar, 30, {trailing: true, leading: true}));
-    this.yScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarY, 30, {trailing: true, leading: true}));
+    this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
+    this.yScrollbar.addEventListener('scroll', this.onScrollBarY);
+  }
+
+  setScrollData = () => {
+    return this.scrollData = {
+      scrollTop: this.yScrollbar.scrollTop,
+      scrollHeight: this.yScrollbar.scrollHeight,
+      clientHeight: this.yScrollbar.clientHeight,
+      scrollLeft: this.xScrollbar.scrollLeft,
+      scrollWidth: this.xScrollbar.scrollWidth,
+      clientWidth: this.xScrollbar.clientWidth
+    };
   }
 
   onScrollBarX = () => {
@@ -117,7 +129,7 @@ class StickyTable extends PureComponent {
 
   scrollXScrollbar = () => {
     if (!this.suppressScroll) {
-      this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
+      this.scrollData.scrollLeft = this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
       this.suppressScroll = true;
     } else {
       this.suppressScroll = false;
@@ -126,7 +138,7 @@ class StickyTable extends PureComponent {
 
   scrollYScrollbar = () => {
     if (!this.suppressScroll) {
-      this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
+      this.scrollData.scrollTop = this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
       this.suppressScroll = true;
     } else {
       this.suppressScroll = false;
@@ -134,34 +146,19 @@ class StickyTable extends PureComponent {
   }
 
   handleScroll = () => {
-    var scrollData = {
-      scrollTop: this.yScrollbar.scrollTop,
-      scrollHeight: this.yScrollbar.scrollHeight,
-      clientHeight: this.yScrollbar.clientHeight,
-      scrollLeft: this.xScrollbar.scrollLeft,
-      scrollWidth: this.xScrollbar.scrollWidth,
-      clientWidth: this.xScrollbar.clientWidth
-    };
-
     if (this.props.onScroll) {
-      this.props.onScroll(scrollData);
+      this.props.onScroll(this.scrollData);
     }
 
-    var isChanged = scrollData.scrollTop != this.yWrapper.scrollTop
-      || scrollData.scrollLeft != this.xWrapper.scrollLeft;
-    if (isChanged) {
-      this.scrollData = scrollData;
-      _.defer(() => this.onScrollEnd());
-    }
+    _.defer(() => this.onScrollEnd());
   }
 
   handleScrollEnd() {
-    console.log('end');
-    this.onScrollBarX();
-    this.onScrollBarY();
+    this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
+    this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
 
-    if (this.props.onScroll) {
-      this.props.onScroll(this.scrollData);
+    if (this.props.onScrollEnd) {
+      this.props.onScrollEnd(this.scrollData);
     }
 
     this.suppressScroll = false;
@@ -177,6 +174,7 @@ class StickyTable extends PureComponent {
     this.setScrollBarDims();
     this.setScrollBarWrapperDims();
     this.onScroll();
+    this.setScrollData();
   }
 
   setScrollBarPaddings() {

@@ -104,6 +104,17 @@
 
       var _this = _possibleConstructorReturn(this, (StickyTable.__proto__ || Object.getPrototypeOf(StickyTable)).call(this, props));
 
+      _this.setScrollData = function () {
+        return _this.scrollData = {
+          scrollTop: _this.yScrollbar.scrollTop,
+          scrollHeight: _this.yScrollbar.scrollHeight,
+          clientHeight: _this.yScrollbar.clientHeight,
+          scrollLeft: _this.xScrollbar.scrollLeft,
+          scrollWidth: _this.xScrollbar.scrollWidth,
+          clientWidth: _this.xScrollbar.clientWidth
+        };
+      };
+
       _this.onScrollBarX = function () {
         if (!_this.suppressScroll) {
           _this.xWrapper.scrollLeft = _this.xScrollbar.scrollLeft;
@@ -140,7 +151,7 @@
 
       _this.scrollXScrollbar = function () {
         if (!_this.suppressScroll) {
-          _this.xScrollbar.scrollLeft = _this.xWrapper.scrollLeft;
+          _this.scrollData.scrollLeft = _this.xScrollbar.scrollLeft = _this.xWrapper.scrollLeft;
           _this.suppressScroll = true;
         } else {
           _this.suppressScroll = false;
@@ -149,7 +160,7 @@
 
       _this.scrollYScrollbar = function () {
         if (!_this.suppressScroll) {
-          _this.yScrollbar.scrollTop = _this.yWrapper.scrollTop;
+          _this.scrollData.scrollTop = _this.yScrollbar.scrollTop = _this.yWrapper.scrollTop;
           _this.suppressScroll = true;
         } else {
           _this.suppressScroll = false;
@@ -157,26 +168,13 @@
       };
 
       _this.handleScroll = function () {
-        var scrollData = {
-          scrollTop: _this.yScrollbar.scrollTop,
-          scrollHeight: _this.yScrollbar.scrollHeight,
-          clientHeight: _this.yScrollbar.clientHeight,
-          scrollLeft: _this.xScrollbar.scrollLeft,
-          scrollWidth: _this.xScrollbar.scrollWidth,
-          clientWidth: _this.xScrollbar.clientWidth
-        };
-
         if (_this.props.onScroll) {
-          _this.props.onScroll(scrollData);
+          _this.props.onScroll(_this.scrollData);
         }
 
-        var isChanged = scrollData.scrollTop != _this.yWrapper.scrollTop || scrollData.scrollLeft != _this.xWrapper.scrollLeft;
-        if (isChanged) {
-          _this.scrollData = scrollData;
-          _.defer(function () {
-            return _this.onScrollEnd();
-          });
-        }
+        _.defer(function () {
+          return _this.onScrollEnd();
+        });
       };
 
       _this.onResize = function () {
@@ -185,6 +183,7 @@
         _this.setScrollBarDims();
         _this.setScrollBarWrapperDims();
         _this.onScroll();
+        _this.setScrollData();
       };
 
       _this.setScrollBarWrapperDims = function () {
@@ -222,9 +221,10 @@
           this.stickyHeader = this.table.querySelector('#sticky-table-header');
           this.stickyColumn = this.table.querySelector('#sticky-table-column');
           this.stickyCorner = this.table.querySelector('#sticky-table-corner');
+          this.setScrollData();
 
-          this.onScrollEnd = _.debounce(this.handleScrollEnd, 200);
-          this.onScroll = _.throttle(this.handleScroll, 30, { trailing: true, leading: false });
+          this.onScrollEnd = _.debounce(this.handleScrollEnd, 100);
+          this.onScroll = _.throttle(this.handleScroll, 50, { trailing: true, leading: true });
 
           this.xWrapper.addEventListener('scroll', this.onScrollX);
 
@@ -252,22 +252,21 @@
       key: 'addScrollBarEventHandlers',
       value: function addScrollBarEventHandlers() {
         //X Scrollbars
-        this.xWrapper.addEventListener('scroll', _.throttle(this.scrollXScrollbar, 30, { trailing: true, leading: true }));
-        this.xScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarX, 30, { trailing: true, leading: true }));
+        this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
+        this.xScrollbar.addEventListener('scroll', this.onScrollBarX);
 
         //Y Scrollbars
-        this.yWrapper.addEventListener('scroll', _.throttle(this.scrollYScrollbar, 30, { trailing: true, leading: true }));
-        this.yScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarY, 30, { trailing: true, leading: true }));
+        this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
+        this.yScrollbar.addEventListener('scroll', this.onScrollBarY);
       }
     }, {
       key: 'handleScrollEnd',
       value: function handleScrollEnd() {
-        console.log('end');
-        this.onScrollBarX();
-        this.onScrollBarY();
+        this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
+        this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
 
-        if (this.props.onScroll) {
-          this.props.onScroll(this.scrollData);
+        if (this.props.onScrollEnd) {
+          this.props.onScrollEnd(this.scrollData);
         }
 
         this.suppressScroll = false;
