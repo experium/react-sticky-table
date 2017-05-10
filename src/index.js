@@ -45,6 +45,8 @@ class StickyTable extends Component {
       this.stickyColumn = this.table.querySelector('#sticky-table-column');
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
 
+      this.onScroll = _.throttle(this.handleScroll, 30, {trailing: true, leading: false});
+
       this.xWrapper.addEventListener('scroll', this.onScrollX);
 
       elementResizeEvent(this.realTable, this.onResize);
@@ -70,7 +72,6 @@ class StickyTable extends Component {
    * @returns {null} no return necessary
    */
   addScrollBarEventHandlers() {
-    this.onScroll = _.throttle(this.handleScroll, 30);
     //X Scrollbars
     this.xWrapper.addEventListener('scroll', _.throttle(this.scrollXScrollbar, 30, {trailing: true, leading: true}));
     this.xScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarX, 30, {trailing: true, leading: true}));
@@ -150,6 +151,7 @@ class StickyTable extends Component {
     this.setColumnWidths();
     this.setScrollBarDims();
     this.setScrollBarWrapperDims();
+    this.onScroll();
   }
 
   setScrollBarPaddings() {
