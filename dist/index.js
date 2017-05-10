@@ -96,8 +96,8 @@
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var StickyTable = function (_Component) {
-    _inherits(StickyTable, _Component);
+  var StickyTable = function (_PureComponent) {
+    _inherits(StickyTable, _PureComponent);
 
     function StickyTable(props) {
       _classCallCheck(this, StickyTable);
@@ -112,7 +112,9 @@
           _this.suppressScroll = false;
         }
 
-        _this.onScroll();
+        _.defer(function () {
+          return _this.onScroll();
+        });
       };
 
       _this.onScrollBarY = function () {
@@ -123,7 +125,9 @@
           _this.suppressScroll = false;
         }
 
-        _this.onScroll();
+        _.defer(function () {
+          return _this.onScroll();
+        });
       };
 
       _this.onScrollX = function () {
@@ -235,6 +239,7 @@
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         this.onResize();
+        this.suppressScroll = false;
       }
     }, {
       key: 'componentWillUnmount',
@@ -257,12 +262,15 @@
     }, {
       key: 'handleScrollEnd',
       value: function handleScrollEnd() {
+        console.log('end');
         this.onScrollBarX();
         this.onScrollBarY();
 
         if (this.props.onScroll) {
           this.props.onScroll(this.scrollData);
         }
+
+        this.suppressScroll = false;
       }
     }, {
       key: 'setScrollBarPaddings',
@@ -300,7 +308,6 @@
 
             if (cellToCopy) {
               height = this.getSize(cellToCopy).height;
-
               this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
               if (r === 0 && this.stickyCorner.firstChild.firstChild) {
@@ -498,7 +505,7 @@
     }]);
 
     return StickyTable;
-  }(_react.Component);
+  }(_react.PureComponent);
 
   StickyTable.propTypes = {
     onScroll: _propTypes2.default.func,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
 var _ = require('lodash');
@@ -16,7 +16,7 @@ import Cell from './Cell';
  * a full re-render every time the user scrolls or changes the
  * width of a cell.
  */
-class StickyTable extends Component {
+class StickyTable extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -62,6 +62,7 @@ class StickyTable extends Component {
 
   componentDidUpdate() {
     this.onResize();
+    this.suppressScroll = false;
   }
 
   componentWillUnmount() {
@@ -92,7 +93,7 @@ class StickyTable extends Component {
       this.suppressScroll = false;
     }
 
-    this.onScroll();
+    _.defer(() => this.onScroll());
   }
 
   onScrollBarY = () => {
@@ -103,7 +104,7 @@ class StickyTable extends Component {
       this.suppressScroll = false;
     }
 
-    this.onScroll();
+    _.defer(() => this.onScroll());
   }
 
   onScrollX = () => {
@@ -155,12 +156,15 @@ class StickyTable extends Component {
   }
 
   handleScrollEnd() {
+    console.log('end');
     this.onScrollBarX();
     this.onScrollBarY();
 
     if (this.props.onScroll) {
       this.props.onScroll(this.scrollData);
     }
+
+    this.suppressScroll = false;
   }
 
   /**
@@ -218,7 +222,6 @@ class StickyTable extends Component {
 
         if (cellToCopy) {
           height = this.getSize(cellToCopy).height;
-
           this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
           if (r === 0 && this.stickyCorner.firstChild.firstChild) {
