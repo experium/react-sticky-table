@@ -59,7 +59,6 @@ class StickyTable extends Component {
       this.onResize();
       setTimeout(this.onResize);
       this.addScrollBarEventHandlers();
-      this.setScrollBarWrapperDims();
     }
   }
 
@@ -74,6 +73,8 @@ class StickyTable extends Component {
    * @returns {null} no return necessary
    */
   addScrollBarEventHandlers() {
+    this.onScrollEnd = _.debounce(this.handleScroll, 100);
+
     //X Scrollbars
     this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
     this.xScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarX, 30), this));
@@ -90,6 +91,8 @@ class StickyTable extends Component {
     } else {
       this.suppressScroll = false;
     }
+
+    this.onScrollEnd();
   }
 
   onScrollBarY = () => {
@@ -99,6 +102,8 @@ class StickyTable extends Component {
     } else {
       this.suppressScroll = false;
     }
+
+    this.onScrollEnd();
   }
 
   onScrollX() {
@@ -127,6 +132,19 @@ class StickyTable extends Component {
     }
   }
 
+  handleScroll = () => {
+    if (this.props.onScrollEnd) {
+      this.props.onScrollEnd({
+        scrollTop: this.yScrollbar.scrollTop,
+        scrollHeight: this.yScrollbar.scrollHeight,
+        clientHeight: this.yScrollbar.clientHeight,
+        scrollLeft: this.xScrollbar.scrollLeft,
+        scrollWidth: this.xScrollbar.scrollWidth,
+        clientWidth: this.xScrollbar.clientWidth
+      });
+    }
+  }
+
   /**
    * Handle real cell resize events
    * @returns {null} no return necessary
@@ -135,6 +153,7 @@ class StickyTable extends Component {
     this.setRowHeights();
     this.setColumnWidths();
     this.setScrollBarDims();
+    this.setScrollBarWrapperDims();
   }
 
   setScrollBarPaddings() {
@@ -147,7 +166,7 @@ class StickyTable extends Component {
   }
 
   setScrollBarWrapperDims() {
-    this.xScrollbar.style.width = 'calc(100% + ' + this.yScrollSize + 'px)';
+    this.xScrollbar.style.width = 'calc(100% - ' + this.yScrollSize + 'px)';
     this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
     this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
   }
@@ -157,10 +176,10 @@ class StickyTable extends Component {
     this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
     this.setScrollBarPaddings();
 
-    var width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + this.yScrollSize;
+    var width = this.getSize(this.realTable.firstChild).width + this.yScrollSize;
     this.xScrollbar.firstChild.style.width = width + 'px';
 
-    var height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight;
+    var height = this.getSize(this.realTable).height - this.stickyHeader.offsetHeight;
     this.yScrollbar.firstChild.style.height = height + 'px';
   }
 
@@ -176,7 +195,7 @@ class StickyTable extends Component {
         cellToCopy = this.realTable.childNodes[r].firstChild;
 
         if (cellToCopy) {
-          height = this.getSizeWithoutBoxSizing(cellToCopy).height;
+          height = this.getSize(cellToCopy).height;
 
           this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
@@ -202,7 +221,7 @@ class StickyTable extends Component {
         cellToCopy = this.realTable.firstChild.childNodes[c];
 
         if (cellToCopy) {
-          width = this.getSizeWithoutBoxSizing(cellToCopy).width;
+          width = this.getSize(cellToCopy).width;
 
           cell = this.table.querySelector('#sticky-header-cell-' + c);
 
@@ -315,7 +334,7 @@ class StickyTable extends Component {
    * @param  {object} node dom object
    * @return {object} dimensions
    */
-  getSizeWithoutBoxSizing(node) {
+  getSize(node) {
     var nodeStyle = this.getStyle(node);
     var width = node.getBoundingClientRect().width;
     var height = node.getBoundingClientRect().height;
@@ -370,6 +389,7 @@ class StickyTable extends Component {
 }
 
 StickyTable.propTypes = {
+  onScrollEnd: PropTypes.func,
   rowCount: PropTypes.number, //Including header
   columnCount: PropTypes.number
 };

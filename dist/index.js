@@ -111,6 +111,8 @@
         } else {
           _this.suppressScroll = false;
         }
+
+        _this.onScrollEnd();
       };
 
       _this.onScrollBarY = function () {
@@ -119,6 +121,21 @@
           _this.suppressScroll = true;
         } else {
           _this.suppressScroll = false;
+        }
+
+        _this.onScrollEnd();
+      };
+
+      _this.handleScroll = function () {
+        if (_this.props.onScrollEnd) {
+          _this.props.onScrollEnd({
+            scrollTop: _this.yScrollbar.scrollTop,
+            scrollHeight: _this.yScrollbar.scrollHeight,
+            clientHeight: _this.yScrollbar.clientHeight,
+            scrollLeft: _this.xScrollbar.scrollLeft,
+            scrollWidth: _this.xScrollbar.scrollWidth,
+            clientWidth: _this.xScrollbar.clientWidth
+          });
         }
       };
 
@@ -163,7 +180,6 @@
           this.onResize();
           setTimeout(this.onResize);
           this.addScrollBarEventHandlers();
-          this.setScrollBarWrapperDims();
         }
       }
     }, {
@@ -176,6 +192,8 @@
     }, {
       key: 'addScrollBarEventHandlers',
       value: function addScrollBarEventHandlers() {
+        this.onScrollEnd = _.debounce(this.handleScroll, 100);
+
         //X Scrollbars
         this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
         this.xScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarX, 30), this));
@@ -219,6 +237,7 @@
         this.setRowHeights();
         this.setColumnWidths();
         this.setScrollBarDims();
+        this.setScrollBarWrapperDims();
       }
     }, {
       key: 'setScrollBarPaddings',
@@ -232,7 +251,7 @@
     }, {
       key: 'setScrollBarWrapperDims',
       value: function setScrollBarWrapperDims() {
-        this.xScrollbar.style.width = 'calc(100% + ' + this.yScrollSize + 'px)';
+        this.xScrollbar.style.width = 'calc(100% - ' + this.yScrollSize + 'px)';
         this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
         this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
       }
@@ -243,10 +262,10 @@
         this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
         this.setScrollBarPaddings();
 
-        var width = this.getSizeWithoutBoxSizing(this.realTable.firstChild).width + this.yScrollSize;
+        var width = this.getSize(this.realTable.firstChild).width + this.yScrollSize;
         this.xScrollbar.firstChild.style.width = width + 'px';
 
-        var height = this.getSizeWithoutBoxSizing(this.realTable).height - this.stickyHeader.offsetHeight;
+        var height = this.getSize(this.realTable).height - this.stickyHeader.offsetHeight;
         this.yScrollbar.firstChild.style.height = height + 'px';
       }
     }, {
@@ -259,7 +278,7 @@
             cellToCopy = this.realTable.childNodes[r].firstChild;
 
             if (cellToCopy) {
-              height = this.getSizeWithoutBoxSizing(cellToCopy).height;
+              height = this.getSize(cellToCopy).height;
 
               this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
@@ -282,7 +301,7 @@
             cellToCopy = this.realTable.firstChild.childNodes[c];
 
             if (cellToCopy) {
-              width = this.getSizeWithoutBoxSizing(cellToCopy).width;
+              width = this.getSize(cellToCopy).width;
 
               cell = this.table.querySelector('#sticky-header-cell-' + c);
 
@@ -371,8 +390,8 @@
         return browserSupportsComputedStyle ? getComputedStyle(node, null) : node.currentStyle;
       }
     }, {
-      key: 'getSizeWithoutBoxSizing',
-      value: function getSizeWithoutBoxSizing(node) {
+      key: 'getSize',
+      value: function getSize(node) {
         var nodeStyle = this.getStyle(node);
         var width = node.getBoundingClientRect().width;
         var height = node.getBoundingClientRect().height;
@@ -461,6 +480,7 @@
   }(_react.Component);
 
   StickyTable.propTypes = {
+    onScrollEnd: _propTypes2.default.func,
     rowCount: _propTypes2.default.number, //Including header
     columnCount: _propTypes2.default.number
   };
