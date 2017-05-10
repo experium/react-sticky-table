@@ -47,6 +47,7 @@ class StickyTable extends Component {
       this.stickyColumn = this.table.querySelector('#sticky-table-column');
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
 
+      this.onScrollEnd = _.debounce(this.handleScrollEnd, 200);
       this.onScroll = _.throttle(this.handleScroll, 30, {trailing: true, leading: false});
 
       this.xWrapper.addEventListener('scroll', this.onScrollX);
@@ -132,15 +133,33 @@ class StickyTable extends Component {
   }
 
   handleScroll = () => {
+    var scrollData = {
+      scrollTop: this.yScrollbar.scrollTop,
+      scrollHeight: this.yScrollbar.scrollHeight,
+      clientHeight: this.yScrollbar.clientHeight,
+      scrollLeft: this.xScrollbar.scrollLeft,
+      scrollWidth: this.xScrollbar.scrollWidth,
+      clientWidth: this.xScrollbar.clientWidth
+    };
+
     if (this.props.onScroll) {
-      this.props.onScroll({
-        scrollTop: this.yScrollbar.scrollTop,
-        scrollHeight: this.yScrollbar.scrollHeight,
-        clientHeight: this.yScrollbar.clientHeight,
-        scrollLeft: this.xScrollbar.scrollLeft,
-        scrollWidth: this.xScrollbar.scrollWidth,
-        clientWidth: this.xScrollbar.clientWidth
-      });
+      this.props.onScroll(scrollData);
+    }
+
+    var isChanged = scrollData.scrollTop != this.yWrapper.scrollTop
+      || scrollData.scrollLeft != this.xWrapper.scrollLeft;
+    if (isChanged) {
+      this.scrollData = scrollData;
+      _.defer(() => this.onScrollEnd());
+    }
+  }
+
+  handleScrollEnd() {
+    this.onScrollBarX();
+    this.onScrollBarY();
+
+    if (this.props.onScroll) {
+      this.props.onScroll(this.scrollData);
     }
   }
 
@@ -393,6 +412,7 @@ class StickyTable extends Component {
 
 StickyTable.propTypes = {
   onScroll: PropTypes.func,
+  onScrollEnd: PropTypes.func,
   rowCount: PropTypes.number, //Including header
   columnCount: PropTypes.number
 };

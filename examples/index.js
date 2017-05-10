@@ -16,7 +16,7 @@ class Example extends Component {
         for (var r = 0; r < 30; r++) {
             cells = [];
 
-            for (var c = 0; c < 50; c++) {
+            for (var c = 0; c < 250; c++) {
                 cells.push(
                     <Cell key={c}>
                         {r === 0 ? 'HEAD' + c : 'Cell' + r + c + '\n Content'}
@@ -28,7 +28,7 @@ class Example extends Component {
         }
 
         return (
-            <div style={{width: '700px', height: '300px'}}>
+            <div style={{width: '900px', height: '500px'}}>
                 <StickyTable stickyColumnsCount={2}>
                     {rows}
                 </StickyTable>

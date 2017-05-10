@@ -153,14 +153,24 @@
       };
 
       _this.handleScroll = function () {
+        var scrollData = {
+          scrollTop: _this.yScrollbar.scrollTop,
+          scrollHeight: _this.yScrollbar.scrollHeight,
+          clientHeight: _this.yScrollbar.clientHeight,
+          scrollLeft: _this.xScrollbar.scrollLeft,
+          scrollWidth: _this.xScrollbar.scrollWidth,
+          clientWidth: _this.xScrollbar.clientWidth
+        };
+
         if (_this.props.onScroll) {
-          _this.props.onScroll({
-            scrollTop: _this.yScrollbar.scrollTop,
-            scrollHeight: _this.yScrollbar.scrollHeight,
-            clientHeight: _this.yScrollbar.clientHeight,
-            scrollLeft: _this.xScrollbar.scrollLeft,
-            scrollWidth: _this.xScrollbar.scrollWidth,
-            clientWidth: _this.xScrollbar.clientWidth
+          _this.props.onScroll(scrollData);
+        }
+
+        var isChanged = scrollData.scrollTop != _this.yWrapper.scrollTop || scrollData.scrollLeft != _this.xWrapper.scrollLeft;
+        if (isChanged) {
+          _this.scrollData = scrollData;
+          _.defer(function () {
+            return _this.onScrollEnd();
           });
         }
       };
@@ -209,6 +219,7 @@
           this.stickyColumn = this.table.querySelector('#sticky-table-column');
           this.stickyCorner = this.table.querySelector('#sticky-table-corner');
 
+          this.onScrollEnd = _.debounce(this.handleScrollEnd, 200);
           this.onScroll = _.throttle(this.handleScroll, 30, { trailing: true, leading: false });
 
           this.xWrapper.addEventListener('scroll', this.onScrollX);
@@ -242,6 +253,16 @@
         //Y Scrollbars
         this.yWrapper.addEventListener('scroll', _.throttle(this.scrollYScrollbar, 30, { trailing: true, leading: true }));
         this.yScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarY, 30, { trailing: true, leading: true }));
+      }
+    }, {
+      key: 'handleScrollEnd',
+      value: function handleScrollEnd() {
+        this.onScrollBarX();
+        this.onScrollBarY();
+
+        if (this.props.onScroll) {
+          this.props.onScroll(this.scrollData);
+        }
       }
     }, {
       key: 'setScrollBarPaddings',
@@ -481,6 +502,7 @@
 
   StickyTable.propTypes = {
     onScroll: _propTypes2.default.func,
+    onScrollEnd: _propTypes2.default.func,
     rowCount: _propTypes2.default.number, //Including header
     columnCount: _propTypes2.default.number
   };
