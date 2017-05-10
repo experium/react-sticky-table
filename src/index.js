@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-var _ = require('underscore');
-var proxy = require('nodeproxy');
+var _ = require('lodash');
 var elementResizeEvent = require('element-resize-event');
 
 import Table from './Table';
@@ -31,12 +30,6 @@ class StickyTable extends Component {
     this.suppressScroll = false;
 
     this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || 1);
-
-    this.onResize = this.onResize.bind(this);
-    this.setScrollBarWrapperDims = this.setScrollBarWrapperDims.bind(this);
-    this.onScrollX = this.onScrollX.bind(this);
-    this.scrollXScrollbar = _.throttle(this.scrollXScrollbar.bind(this), 30);
-    this.scrollYScrollbar = _.throttle(this.scrollYScrollbar.bind(this), 30);
   }
 
   componentDidMount() {
@@ -62,6 +55,10 @@ class StickyTable extends Component {
     }
   }
 
+  componentDidUpdate() {
+    this.onResize();
+  }
+
   componentWillUnmount() {
     if (this.table) {
       this.xWrapper.removeEventListener('scroll', this.onScrollX);
@@ -73,15 +70,14 @@ class StickyTable extends Component {
    * @returns {null} no return necessary
    */
   addScrollBarEventHandlers() {
-    this.onScrollEnd = _.debounce(this.handleScroll, 100);
-
+    this.onScroll = _.throttle(this.handleScroll, 30);
     //X Scrollbars
-    this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
-    this.xScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarX, 30), this));
+    this.xWrapper.addEventListener('scroll', _.throttle(this.scrollXScrollbar, 30, {trailing: true, leading: true}));
+    this.xScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarX, 30, {trailing: true, leading: true}));
 
     //Y Scrollbars
-    this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
-    this.yScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarY, 30), this));
+    this.yWrapper.addEventListener('scroll', _.throttle(this.scrollYScrollbar, 30, {trailing: true, leading: true}));
+    this.yScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarY, 30, {trailing: true, leading: true}));
   }
 
   onScrollBarX = () => {
@@ -92,7 +88,7 @@ class StickyTable extends Component {
       this.suppressScroll = false;
     }
 
-    this.onScrollEnd();
+    this.onScroll();
   }
 
   onScrollBarY = () => {
@@ -103,10 +99,10 @@ class StickyTable extends Component {
       this.suppressScroll = false;
     }
 
-    this.onScrollEnd();
+    this.onScroll();
   }
 
-  onScrollX() {
+  onScrollX = () => {
     var scrollLeftWrapper = Math.max(this.xWrapper.scrollLeft, 0);
     var scrollLeftScrollbar = Math.max(this.xScrollbar.scrollLeft, 0);
     var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
@@ -114,7 +110,7 @@ class StickyTable extends Component {
     this.stickyHeader.style.transform = 'translate(' + (-1 * scrollLeft) + 'px, 0)';
   }
 
-  scrollXScrollbar() {
+  scrollXScrollbar = () => {
     if (!this.suppressScroll) {
       this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
       this.suppressScroll = true;
@@ -123,7 +119,7 @@ class StickyTable extends Component {
     }
   }
 
-  scrollYScrollbar() {
+  scrollYScrollbar = () => {
     if (!this.suppressScroll) {
       this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
       this.suppressScroll = true;
@@ -133,8 +129,8 @@ class StickyTable extends Component {
   }
 
   handleScroll = () => {
-    if (this.props.onScrollEnd) {
-      this.props.onScrollEnd({
+    if (this.props.onScroll) {
+      this.props.onScroll({
         scrollTop: this.yScrollbar.scrollTop,
         scrollHeight: this.yScrollbar.scrollHeight,
         clientHeight: this.yScrollbar.clientHeight,
@@ -149,7 +145,7 @@ class StickyTable extends Component {
    * Handle real cell resize events
    * @returns {null} no return necessary
    */
-  onResize() {
+  onResize = () => {
     this.setRowHeights();
     this.setColumnWidths();
     this.setScrollBarDims();
@@ -165,7 +161,7 @@ class StickyTable extends Component {
     this.xWrapper.firstChild.style.padding = scrollPadding;
   }
 
-  setScrollBarWrapperDims() {
+  setScrollBarWrapperDims = () => {
     this.xScrollbar.style.width = 'calc(100% - ' + this.yScrollSize + 'px)';
     this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
     this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
@@ -179,7 +175,7 @@ class StickyTable extends Component {
     var width = this.getSize(this.realTable.firstChild).width + this.yScrollSize;
     this.xScrollbar.firstChild.style.width = width + 'px';
 
-    var height = this.getSize(this.realTable).height - this.stickyHeader.offsetHeight;
+    var height = this.getSize(this.realTable).height + this.xScrollSize - this.stickyHeader.offsetHeight;
     this.yScrollbar.firstChild.style.height = height + 'px';
   }
 
@@ -258,7 +254,7 @@ class StickyTable extends Component {
     var cells;
     var stickyRows = [];
 
-    rows.forEach(proxy((row, r) => {
+    rows.forEach((row, r) => {
       cells = React.Children.toArray(row.props.children);
 
       stickyRows.push(
@@ -266,7 +262,7 @@ class StickyTable extends Component {
           {cells.slice(0, columnsCount)}
         </Row>
       );
-    }, this));
+    });
 
     return stickyRows;
   }
@@ -303,7 +299,7 @@ class StickyTable extends Component {
     var cells;
     var stickyCorner = [];
 
-    rows.forEach(proxy((row, r) => {
+    rows.forEach((row, r) => {
       if (r === 0) {
         cells = React.Children.toArray(row.props.children);
 
@@ -313,7 +309,7 @@ class StickyTable extends Component {
           </Row>
         );
       }
-    }, this));
+    });
 
     return stickyCorner;
   }
@@ -389,7 +385,7 @@ class StickyTable extends Component {
 }
 
 StickyTable.propTypes = {
-  onScrollEnd: PropTypes.func,
+  onScroll: PropTypes.func,
   rowCount: PropTypes.number, //Including header
   columnCount: PropTypes.number
 };

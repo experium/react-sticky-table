@@ -1,16 +1,16 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(['exports', 'react', 'prop-types', './Table', './Row', './Cell', 'underscore', 'nodeproxy', 'element-resize-event'], factory);
+    define(['exports', 'react', 'prop-types', './Table', './Row', './Cell', 'lodash', 'element-resize-event'], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require('react'), require('prop-types'), require('./Table'), require('./Row'), require('./Cell'), require('underscore'), require('nodeproxy'), require('element-resize-event'));
+    factory(exports, require('react'), require('prop-types'), require('./Table'), require('./Row'), require('./Cell'), require('lodash'), require('element-resize-event'));
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.react, global.propTypes, global.Table, global.Row, global.Cell, global.underscore, global.nodeproxy, global.elementResizeEvent);
+    factory(mod.exports, global.react, global.propTypes, global.Table, global.Row, global.Cell, global.lodash, global.elementResizeEvent);
     global.index = mod.exports;
   }
-})(this, function (exports, _react, _propTypes, _Table, _Row, _Cell, _, proxy, elementResizeEvent) {
+})(this, function (exports, _react, _propTypes, _Table, _Row, _Cell, _, elementResizeEvent) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -112,7 +112,7 @@
           _this.suppressScroll = false;
         }
 
-        _this.onScrollEnd();
+        _this.onScroll();
       };
 
       _this.onScrollBarY = function () {
@@ -123,12 +123,38 @@
           _this.suppressScroll = false;
         }
 
-        _this.onScrollEnd();
+        _this.onScroll();
+      };
+
+      _this.onScrollX = function () {
+        var scrollLeftWrapper = Math.max(_this.xWrapper.scrollLeft, 0);
+        var scrollLeftScrollbar = Math.max(_this.xScrollbar.scrollLeft, 0);
+        var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
+
+        _this.stickyHeader.style.transform = 'translate(' + -1 * scrollLeft + 'px, 0)';
+      };
+
+      _this.scrollXScrollbar = function () {
+        if (!_this.suppressScroll) {
+          _this.xScrollbar.scrollLeft = _this.xWrapper.scrollLeft;
+          _this.suppressScroll = true;
+        } else {
+          _this.suppressScroll = false;
+        }
+      };
+
+      _this.scrollYScrollbar = function () {
+        if (!_this.suppressScroll) {
+          _this.yScrollbar.scrollTop = _this.yWrapper.scrollTop;
+          _this.suppressScroll = true;
+        } else {
+          _this.suppressScroll = false;
+        }
       };
 
       _this.handleScroll = function () {
-        if (_this.props.onScrollEnd) {
-          _this.props.onScrollEnd({
+        if (_this.props.onScroll) {
+          _this.props.onScroll({
             scrollTop: _this.yScrollbar.scrollTop,
             scrollHeight: _this.yScrollbar.scrollHeight,
             clientHeight: _this.yScrollbar.clientHeight,
@@ -137,6 +163,19 @@
             clientWidth: _this.xScrollbar.clientWidth
           });
         }
+      };
+
+      _this.onResize = function () {
+        _this.setRowHeights();
+        _this.setColumnWidths();
+        _this.setScrollBarDims();
+        _this.setScrollBarWrapperDims();
+      };
+
+      _this.setScrollBarWrapperDims = function () {
+        _this.xScrollbar.style.width = 'calc(100% - ' + _this.yScrollSize + 'px)';
+        _this.yScrollbar.style.height = 'calc(100% - ' + _this.stickyHeader.offsetHeight + 'px)';
+        _this.yScrollbar.style.top = _this.stickyHeader.offsetHeight + 'px';
       };
 
       _this.id = Math.floor(Math.random() * 1000000000) + '';
@@ -149,12 +188,6 @@
       _this.suppressScroll = false;
 
       _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
-
-      _this.onResize = _this.onResize.bind(_this);
-      _this.setScrollBarWrapperDims = _this.setScrollBarWrapperDims.bind(_this);
-      _this.onScrollX = _this.onScrollX.bind(_this);
-      _this.scrollXScrollbar = _.throttle(_this.scrollXScrollbar.bind(_this), 30);
-      _this.scrollYScrollbar = _.throttle(_this.scrollYScrollbar.bind(_this), 30);
       return _this;
     }
 
@@ -183,6 +216,11 @@
         }
       }
     }, {
+      key: 'componentDidUpdate',
+      value: function componentDidUpdate() {
+        this.onResize();
+      }
+    }, {
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
         if (this.table) {
@@ -192,52 +230,14 @@
     }, {
       key: 'addScrollBarEventHandlers',
       value: function addScrollBarEventHandlers() {
-        this.onScrollEnd = _.debounce(this.handleScroll, 100);
-
+        this.onScroll = _.throttle(this.handleScroll, 30);
         //X Scrollbars
-        this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
-        this.xScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarX, 30), this));
+        this.xWrapper.addEventListener('scroll', _.throttle(this.scrollXScrollbar, 30, { trailing: true, leading: true }));
+        this.xScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarX, 30, { trailing: true, leading: true }));
 
         //Y Scrollbars
-        this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
-        this.yScrollbar.addEventListener('scroll', proxy(_.throttle(this.onScrollBarY, 30), this));
-      }
-    }, {
-      key: 'onScrollX',
-      value: function onScrollX() {
-        var scrollLeftWrapper = Math.max(this.xWrapper.scrollLeft, 0);
-        var scrollLeftScrollbar = Math.max(this.xScrollbar.scrollLeft, 0);
-        var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
-
-        this.stickyHeader.style.transform = 'translate(' + -1 * scrollLeft + 'px, 0)';
-      }
-    }, {
-      key: 'scrollXScrollbar',
-      value: function scrollXScrollbar() {
-        if (!this.suppressScroll) {
-          this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
-          this.suppressScroll = true;
-        } else {
-          this.suppressScroll = false;
-        }
-      }
-    }, {
-      key: 'scrollYScrollbar',
-      value: function scrollYScrollbar() {
-        if (!this.suppressScroll) {
-          this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
-          this.suppressScroll = true;
-        } else {
-          this.suppressScroll = false;
-        }
-      }
-    }, {
-      key: 'onResize',
-      value: function onResize() {
-        this.setRowHeights();
-        this.setColumnWidths();
-        this.setScrollBarDims();
-        this.setScrollBarWrapperDims();
+        this.yWrapper.addEventListener('scroll', _.throttle(this.scrollYScrollbar, 30, { trailing: true, leading: true }));
+        this.yScrollbar.addEventListener('scroll', _.throttle(this.onScrollBarY, 30, { trailing: true, leading: true }));
       }
     }, {
       key: 'setScrollBarPaddings',
@@ -249,13 +249,6 @@
         this.xWrapper.firstChild.style.padding = scrollPadding;
       }
     }, {
-      key: 'setScrollBarWrapperDims',
-      value: function setScrollBarWrapperDims() {
-        this.xScrollbar.style.width = 'calc(100% - ' + this.yScrollSize + 'px)';
-        this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
-        this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
-      }
-    }, {
       key: 'setScrollBarDims',
       value: function setScrollBarDims() {
         this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
@@ -265,7 +258,7 @@
         var width = this.getSize(this.realTable.firstChild).width + this.yScrollSize;
         this.xScrollbar.firstChild.style.width = width + 'px';
 
-        var height = this.getSize(this.realTable).height - this.stickyHeader.offsetHeight;
+        var height = this.getSize(this.realTable).height + this.xScrollSize - this.stickyHeader.offsetHeight;
         this.yScrollbar.firstChild.style.height = height + 'px';
       }
     }, {
@@ -333,7 +326,7 @@
         var cells;
         var stickyRows = [];
 
-        rows.forEach(proxy(function (row, r) {
+        rows.forEach(function (row, r) {
           cells = _react2.default.Children.toArray(row.props.children);
 
           stickyRows.push(_react2.default.createElement(
@@ -341,7 +334,7 @@
             _extends({}, row.props, { id: '', key: r }),
             cells.slice(0, columnsCount)
           ));
-        }, this));
+        });
 
         return stickyRows;
       }
@@ -368,7 +361,7 @@
         var cells;
         var stickyCorner = [];
 
-        rows.forEach(proxy(function (row, r) {
+        rows.forEach(function (row, r) {
           if (r === 0) {
             cells = _react2.default.Children.toArray(row.props.children);
 
@@ -378,7 +371,7 @@
               cells.slice(0, columnsCount)
             ));
           }
-        }, this));
+        });
 
         return stickyCorner;
       }
@@ -480,7 +473,7 @@
   }(_react.Component);
 
   StickyTable.propTypes = {
-    onScrollEnd: _propTypes2.default.func,
+    onScroll: _propTypes2.default.func,
     rowCount: _propTypes2.default.number, //Including header
     columnCount: _propTypes2.default.number
   };

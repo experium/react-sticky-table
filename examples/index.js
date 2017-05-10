@@ -9,7 +9,7 @@ import './index.css';
 import { StickyTable, Table, Row, Cell } from '../src/index';
 
 class Example extends Component {
-    handleScrollEnd = ({scrollTop, scrollHeight, clientHeight}) => {
+    handleScroll = ({scrollTop, scrollHeight, clientHeight}) => {
         console.log(scrollTop, scrollHeight, clientHeight);
     }
 
@@ -33,7 +33,7 @@ class Example extends Component {
 
         return (
             <div style={{width: '700px', height: '300px'}}>
-                <StickyTable onScrollEnd={this.handleScrollEnd} stickyColumnsCount={2}>
+                <StickyTable onScroll={this.handleScroll} stickyColumnsCount={2}>
                     {rows}
                 </StickyTable>
             </div>
