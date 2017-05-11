@@ -27,8 +27,6 @@ class StickyTable extends PureComponent {
     this.xScrollSize = 0;
     this.yScrollSize = 0;
 
-    this.suppressScroll = false;
-
     this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : (this.stickyHeaderCount || 1);
 
     this.isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -48,10 +46,7 @@ class StickyTable extends PureComponent {
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
       this.setScrollData();
 
-      this.onScrollEnd = _.debounce(this.handleScrollEnd, 100);
-      this.onScroll = _.throttle(this.handleScroll, 50, {trailing: true, leading: true});
-
-      this.xWrapper.addEventListener('scroll', this.onScrollX);
+      this.onScroll = _.throttle(this.handleScroll, 30, {trailing: true, leading: true});
 
       elementResizeEvent(this.realTable, this.onResize);
 
@@ -63,7 +58,6 @@ class StickyTable extends PureComponent {
 
   componentDidUpdate() {
     this.onResize();
-    this.suppressScroll = false;
   }
 
   componentWillUnmount() {
@@ -77,6 +71,8 @@ class StickyTable extends PureComponent {
    * @returns {null} no return necessary
    */
   addScrollBarEventHandlers() {
+    this.xWrapper.addEventListener('scroll', this.onScrollX);
+
     //X Scrollbars
     this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
     this.xScrollbar.addEventListener('scroll', this.onScrollBarX);
@@ -87,6 +83,9 @@ class StickyTable extends PureComponent {
   }
 
   setScrollData = () => {
+    this.suppressScrollX = false;
+    this.suppressScrollY = false;
+
     return this.scrollData = {
       scrollTop: this.yScrollbar.scrollTop,
       scrollHeight: this.yScrollbar.scrollHeight,
@@ -98,50 +97,47 @@ class StickyTable extends PureComponent {
   }
 
   onScrollBarX = () => {
-    if (!this.suppressScroll) {
-      this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
-      this.suppressScroll = true;
+    if (!this.suppressScrollX) {
+      this.scrollData.scrollLeft = this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
+      this.suppressScrollX = true;
     } else {
-      this.suppressScroll = false;
+      this.onScroll();
+      this.suppressScrollX = false;
     }
-
-    _.defer(() => this.onScroll());
   }
 
   onScrollBarY = () => {
-    if (!this.suppressScroll) {
-      this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
-      this.suppressScroll = true;
+    if (!this.suppressScrollY) {
+      this.scrollData.scrollTop = this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
+      this.suppressScrollY = true;
     } else {
-      this.suppressScroll = false;
+      this.onScroll();
+      this.suppressScrollY = false;
     }
-
-    _.defer(() => this.onScroll());
   }
 
   onScrollX = () => {
-    var scrollLeftWrapper = Math.max(this.xWrapper.scrollLeft, 0);
-    var scrollLeftScrollbar = Math.max(this.xScrollbar.scrollLeft, 0);
-    var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
-
+    var scrollLeft = Math.max(this.xWrapper.scrollLeft, 0);
     this.stickyHeader.style.transform = 'translate(' + (-1 * scrollLeft) + 'px, 0)';
   }
 
   scrollXScrollbar = () => {
-    if (!this.suppressScroll) {
+    if (!this.suppressScrollX) {
       this.scrollData.scrollLeft = this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
-      this.suppressScroll = true;
+      this.suppressScrollX = true;
     } else {
-      this.suppressScroll = false;
+      this.onScroll();
+      this.suppressScrollX = false;
     }
   }
 
   scrollYScrollbar = () => {
-    if (!this.suppressScroll) {
+    if (!this.suppressScrollY) {
       this.scrollData.scrollTop = this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
-      this.suppressScroll = true;
+      this.suppressScrollY = true;
     } else {
-      this.suppressScroll = false;
+      this.onScroll();
+      this.suppressScrollY = false;
     }
   }
 
@@ -149,19 +145,6 @@ class StickyTable extends PureComponent {
     if (this.props.onScroll) {
       this.props.onScroll(this.scrollData);
     }
-
-    _.defer(() => this.onScrollEnd());
-  }
-
-  handleScrollEnd() {
-    this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
-    this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
-
-    if (this.props.onScrollEnd) {
-      this.props.onScrollEnd(this.scrollData);
-    }
-
-    this.suppressScroll = false;
   }
 
   /**
@@ -413,7 +396,6 @@ class StickyTable extends PureComponent {
 
 StickyTable.propTypes = {
   onScroll: PropTypes.func,
-  onScrollEnd: PropTypes.func,
   rowCount: PropTypes.number, //Including header
   columnCount: PropTypes.number
 };

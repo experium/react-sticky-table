@@ -9,6 +9,10 @@ import './index.css';
 import { StickyTable, Table, Row, Cell } from '../src/index';
 
 class Example extends Component {
+    handleScroll(data) {
+        console.log('scrollh', data);
+    }
+
     render() {
         var rows = [];
         var cells;
@@ -28,8 +32,8 @@ class Example extends Component {
         }
 
         return (
-            <div style={{width: '900px', height: '500px'}}>
-                <StickyTable stickyColumnsCount={2}>
+            <div style={{width: '900px', height: '300px'}}>
+                <StickyTable onScroll={this.handleScroll} stickyColumnsCount={2}>
                     {rows}
                 </StickyTable>
             </div>

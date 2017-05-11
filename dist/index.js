@@ -105,6 +105,9 @@
       var _this = _possibleConstructorReturn(this, (StickyTable.__proto__ || Object.getPrototypeOf(StickyTable)).call(this, props));
 
       _this.setScrollData = function () {
+        _this.suppressScrollX = false;
+        _this.suppressScrollY = false;
+
         return _this.scrollData = {
           scrollTop: _this.yScrollbar.scrollTop,
           scrollHeight: _this.yScrollbar.scrollHeight,
@@ -116,54 +119,47 @@
       };
 
       _this.onScrollBarX = function () {
-        if (!_this.suppressScroll) {
-          _this.xWrapper.scrollLeft = _this.xScrollbar.scrollLeft;
-          _this.suppressScroll = true;
+        if (!_this.suppressScrollX) {
+          _this.scrollData.scrollLeft = _this.xWrapper.scrollLeft = _this.xScrollbar.scrollLeft;
+          _this.suppressScrollX = true;
         } else {
-          _this.suppressScroll = false;
+          _this.onScroll();
+          _this.suppressScrollX = false;
         }
-
-        _.defer(function () {
-          return _this.onScroll();
-        });
       };
 
       _this.onScrollBarY = function () {
-        if (!_this.suppressScroll) {
-          _this.yWrapper.scrollTop = _this.yScrollbar.scrollTop;
-          _this.suppressScroll = true;
+        if (!_this.suppressScrollY) {
+          _this.scrollData.scrollTop = _this.yWrapper.scrollTop = _this.yScrollbar.scrollTop;
+          _this.suppressScrollY = true;
         } else {
-          _this.suppressScroll = false;
+          _this.onScroll();
+          _this.suppressScrollY = false;
         }
-
-        _.defer(function () {
-          return _this.onScroll();
-        });
       };
 
       _this.onScrollX = function () {
-        var scrollLeftWrapper = Math.max(_this.xWrapper.scrollLeft, 0);
-        var scrollLeftScrollbar = Math.max(_this.xScrollbar.scrollLeft, 0);
-        var scrollLeft = Math.min(scrollLeftWrapper, scrollLeftScrollbar);
-
+        var scrollLeft = Math.max(_this.xWrapper.scrollLeft, 0);
         _this.stickyHeader.style.transform = 'translate(' + -1 * scrollLeft + 'px, 0)';
       };
 
       _this.scrollXScrollbar = function () {
-        if (!_this.suppressScroll) {
+        if (!_this.suppressScrollX) {
           _this.scrollData.scrollLeft = _this.xScrollbar.scrollLeft = _this.xWrapper.scrollLeft;
-          _this.suppressScroll = true;
+          _this.suppressScrollX = true;
         } else {
-          _this.suppressScroll = false;
+          _this.onScroll();
+          _this.suppressScrollX = false;
         }
       };
 
       _this.scrollYScrollbar = function () {
-        if (!_this.suppressScroll) {
+        if (!_this.suppressScrollY) {
           _this.scrollData.scrollTop = _this.yScrollbar.scrollTop = _this.yWrapper.scrollTop;
-          _this.suppressScroll = true;
+          _this.suppressScrollY = true;
         } else {
-          _this.suppressScroll = false;
+          _this.onScroll();
+          _this.suppressScrollY = false;
         }
       };
 
@@ -171,10 +167,6 @@
         if (_this.props.onScroll) {
           _this.props.onScroll(_this.scrollData);
         }
-
-        _.defer(function () {
-          return _this.onScrollEnd();
-        });
       };
 
       _this.onResize = function () {
@@ -199,8 +191,6 @@
       _this.xScrollSize = 0;
       _this.yScrollSize = 0;
 
-      _this.suppressScroll = false;
-
       _this.stickyHeaderCount = props.stickyHeaderCount === 0 ? 0 : _this.stickyHeaderCount || 1;
 
       _this.isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
@@ -223,10 +213,7 @@
           this.stickyCorner = this.table.querySelector('#sticky-table-corner');
           this.setScrollData();
 
-          this.onScrollEnd = _.debounce(this.handleScrollEnd, 100);
-          this.onScroll = _.throttle(this.handleScroll, 50, { trailing: true, leading: true });
-
-          this.xWrapper.addEventListener('scroll', this.onScrollX);
+          this.onScroll = _.throttle(this.handleScroll, 30, { trailing: true, leading: true });
 
           elementResizeEvent(this.realTable, this.onResize);
 
@@ -239,7 +226,6 @@
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         this.onResize();
-        this.suppressScroll = false;
       }
     }, {
       key: 'componentWillUnmount',
@@ -251,6 +237,8 @@
     }, {
       key: 'addScrollBarEventHandlers',
       value: function addScrollBarEventHandlers() {
+        this.xWrapper.addEventListener('scroll', this.onScrollX);
+
         //X Scrollbars
         this.xWrapper.addEventListener('scroll', this.scrollXScrollbar);
         this.xScrollbar.addEventListener('scroll', this.onScrollBarX);
@@ -258,18 +246,6 @@
         //Y Scrollbars
         this.yWrapper.addEventListener('scroll', this.scrollYScrollbar);
         this.yScrollbar.addEventListener('scroll', this.onScrollBarY);
-      }
-    }, {
-      key: 'handleScrollEnd',
-      value: function handleScrollEnd() {
-        this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
-        this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
-
-        if (this.props.onScrollEnd) {
-          this.props.onScrollEnd(this.scrollData);
-        }
-
-        this.suppressScroll = false;
       }
     }, {
       key: 'setScrollBarPaddings',
@@ -508,7 +484,6 @@
 
   StickyTable.propTypes = {
     onScroll: _propTypes2.default.func,
-    onScrollEnd: _propTypes2.default.func,
     rowCount: _propTypes2.default.number, //Including header
     columnCount: _propTypes2.default.number
   };
