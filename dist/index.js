@@ -174,8 +174,8 @@
         _this.setColumnWidths();
         _this.setScrollBarDims();
         _this.setScrollBarWrapperDims();
-        _this.onScroll();
         _this.setScrollData();
+        _this.onScroll();
       };
 
       _this.setScrollBarWrapperDims = function () {

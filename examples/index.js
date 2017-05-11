@@ -10,7 +10,7 @@ import { StickyTable, Table, Row, Cell } from '../src/index';
 
 class Example extends Component {
     handleScroll(data) {
-        console.log('scrollh', data);
+        //console.log('scrollh', data);
     }
 
     render() {

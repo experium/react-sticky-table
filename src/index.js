@@ -156,8 +156,8 @@ class StickyTable extends PureComponent {
     this.setColumnWidths();
     this.setScrollBarDims();
     this.setScrollBarWrapperDims();
-    this.onScroll();
     this.setScrollData();
+    this.onScroll();
   }
 
   setScrollBarPaddings() {
