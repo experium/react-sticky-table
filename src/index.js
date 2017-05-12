@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-var _ = require('lodash');
 var elementResizeEvent = require('element-resize-event');
 
 import Table from './Table';
@@ -46,7 +45,7 @@ class StickyTable extends PureComponent {
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
       this.setScrollData();
 
-      this.onScroll = _.throttle(this.handleScroll, 30, {trailing: true, leading: true});
+      this.onScroll = this.handleScroll;
 
       elementResizeEvent(this.realTable, this.onResize);
 
@@ -63,6 +62,13 @@ class StickyTable extends PureComponent {
   componentWillUnmount() {
     if (this.table) {
       this.xWrapper.removeEventListener('scroll', this.onScrollX);
+      this.xWrapper.removeEventListener('scroll', this.scrollXScrollbar);
+      this.xScrollbar.removeEventListener('scroll', this.onScrollBarX);
+
+      this.yWrapper.removeEventListener('scroll', this.scrollYScrollbar);
+      this.yScrollbar.removeEventListener('scroll', this.onScrollBarY);
+  
+      elementResizeEvent.unbind(this.realTable);
     }
   }
 
@@ -395,7 +401,10 @@ class StickyTable extends PureComponent {
 }
 
 StickyTable.propTypes = {
+  stickyHeaderCount: PropTypes.number,
+  stickyColumnsCount: PropTypes.number,
   onScroll: PropTypes.func,
+
   rowCount: PropTypes.number, //Including header
   columnCount: PropTypes.number
 };

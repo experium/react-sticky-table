@@ -1,16 +1,16 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(['exports', 'react', 'prop-types', './Table', './Row', './Cell', 'lodash', 'element-resize-event'], factory);
+    define(['exports', 'react', 'prop-types', './Table', './Row', './Cell', 'element-resize-event'], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require('react'), require('prop-types'), require('./Table'), require('./Row'), require('./Cell'), require('lodash'), require('element-resize-event'));
+    factory(exports, require('react'), require('prop-types'), require('./Table'), require('./Row'), require('./Cell'), require('element-resize-event'));
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.react, global.propTypes, global.Table, global.Row, global.Cell, global.lodash, global.elementResizeEvent);
+    factory(mod.exports, global.react, global.propTypes, global.Table, global.Row, global.Cell, global.elementResizeEvent);
     global.index = mod.exports;
   }
-})(this, function (exports, _react, _propTypes, _Table, _Row, _Cell, _, elementResizeEvent) {
+})(this, function (exports, _react, _propTypes, _Table, _Row, _Cell, elementResizeEvent) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -213,7 +213,7 @@
           this.stickyCorner = this.table.querySelector('#sticky-table-corner');
           this.setScrollData();
 
-          this.onScroll = _.throttle(this.handleScroll, 30, { trailing: true, leading: true });
+          this.onScroll = this.handleScroll;
 
           elementResizeEvent(this.realTable, this.onResize);
 
@@ -232,6 +232,13 @@
       value: function componentWillUnmount() {
         if (this.table) {
           this.xWrapper.removeEventListener('scroll', this.onScrollX);
+          this.xWrapper.removeEventListener('scroll', this.scrollXScrollbar);
+          this.xScrollbar.removeEventListener('scroll', this.onScrollBarX);
+
+          this.yWrapper.removeEventListener('scroll', this.scrollYScrollbar);
+          this.yScrollbar.removeEventListener('scroll', this.onScrollBarY);
+
+          elementResizeEvent.unbind(this.realTable);
         }
       }
     }, {
@@ -483,7 +490,10 @@
   }(_react.PureComponent);
 
   StickyTable.propTypes = {
+    stickyHeaderCount: _propTypes2.default.number,
+    stickyColumnsCount: _propTypes2.default.number,
     onScroll: _propTypes2.default.func,
+
     rowCount: _propTypes2.default.number, //Including header
     columnCount: _propTypes2.default.number
   };
