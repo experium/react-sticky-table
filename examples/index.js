@@ -10,6 +10,8 @@ import { StickyTable, Table, Row, Cell } from '../src/index';
 
 class Example extends Component {
     state = {
+        colsCount: 50,
+        rowsCount: 30,
         renderTable: true,
         locked: 2
     };
@@ -19,6 +21,12 @@ class Example extends Component {
 
         this.setState({
             locked: Math.max(locked, 0)
+        });
+    }
+
+    handleValue = (field) => (event) => {
+        this.setState({
+            [field]: event.target.value
         });
     }
 
@@ -33,13 +41,14 @@ class Example extends Component {
     }
 
     render() {
+        var { renderTable, rowsCount, colsCount, locked } = this.state;
         var rows = [];
         var cells;
 
-        for (var r = 1; r <= 30; r++) {
+        for (var r = 1; r <= rowsCount; r++) {
             cells = [];
 
-            for (var c = 1; c <= 50; c++) {
+            for (var c = 1; c <= colsCount; c++) {
                 cells.push(
                     <Cell key={c}>
                         { r == 1 && `Column${c}` }
@@ -53,20 +62,34 @@ class Example extends Component {
 
         return (
             <div>
-                {
-                    this.state.renderTable ? (
-                        <div style={{width: '900px', height: '300px'}}>
-                            <StickyTable onScroll={this.handleScroll} stickyColumnsCount={this.state.locked}>
-                                {rows}
-                            </StickyTable>
-                        </div>
-                    )
-                    : null
-                }
-
-                <button onClick={this.handleToggle}>Toggle</button>
-                <button onClick={() => this.handleLocked(true)}>Fixed +</button>
-                <button onClick={() => this.handleLocked()}>Fixed -</button>
+                <div>
+                    <button onClick={this.handleToggle}>
+                        Toggle
+                    </button>
+                    <button onClick={() => this.handleLocked(true)}>
+                        Fixed +
+                    </button>
+                    <button onClick={() => this.handleLocked()}>
+                        Fixed -
+                    </button>
+                    <input type="text"
+                        name="colsCount"
+                        value={colsCount}
+                        onChange={this.handleValue('colsCount')}
+                        title="cols" />
+                    <input type="text"
+                        name="rowsCount"
+                        value={rowsCount}
+                        onChange={this.handleValue('rowsCount')}
+                        title="rows" />
+                </div>
+                { renderTable && (
+                    <div style={{width: '900px', height: '300px'}}>
+                        <StickyTable onScroll={this.handleScroll} stickyColumnsCount={locked}>
+                            {rows}
+                        </StickyTable>
+                    </div>
+                ) }
             </div>
         );
     }

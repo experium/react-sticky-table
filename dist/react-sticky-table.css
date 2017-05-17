@@ -7,11 +7,13 @@
 }
 .sticky-table .sticky-table-container {
   display: table;
+  box-sizing: border-box;
 }
 .sticky-table {
   position: relative;
   height: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 .sticky-table .sticky-table-corner {
   position: absolute;
@@ -22,9 +24,6 @@
 .sticky-table .sticky-table-header {
   position: absolute;
   z-index: 2;
-}
-.sticky-table .sticky-table-header .sticky-table-cell {
-  transition: 0.2s;
 }
 .sticky-table .sticky-table-column,
 .sticky-table .sticky-table-header,

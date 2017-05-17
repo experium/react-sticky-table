@@ -123,7 +123,7 @@
           _this.scrollData.scrollLeft = _this.xWrapper.scrollLeft = _this.xScrollbar.scrollLeft;
           _this.suppressScrollX = true;
         } else {
-          _this.onScroll();
+          _this.handleScroll();
           _this.suppressScrollX = false;
         }
       };
@@ -133,7 +133,7 @@
           _this.scrollData.scrollTop = _this.yWrapper.scrollTop = _this.yScrollbar.scrollTop;
           _this.suppressScrollY = true;
         } else {
-          _this.onScroll();
+          _this.handleScroll();
           _this.suppressScrollY = false;
         }
       };
@@ -148,7 +148,7 @@
           _this.scrollData.scrollLeft = _this.xScrollbar.scrollLeft = _this.xWrapper.scrollLeft;
           _this.suppressScrollX = true;
         } else {
-          _this.onScroll();
+          _this.handleScroll();
           _this.suppressScrollX = false;
         }
       };
@@ -158,7 +158,7 @@
           _this.scrollData.scrollTop = _this.yScrollbar.scrollTop = _this.yWrapper.scrollTop;
           _this.suppressScrollY = true;
         } else {
-          _this.onScroll();
+          _this.handleScroll();
           _this.suppressScrollY = false;
         }
       };
@@ -175,7 +175,7 @@
         _this.setScrollBarDims();
         _this.setScrollBarWrapperDims();
         _this.setScrollData();
-        _this.onScroll();
+        _this.handleScroll();
       };
 
       _this.setScrollBarWrapperDims = function () {
@@ -212,8 +212,6 @@
           this.stickyColumn = this.table.querySelector('#sticky-table-column');
           this.stickyCorner = this.table.querySelector('#sticky-table-corner');
           this.setScrollData();
-
-          this.onScroll = this.handleScroll;
 
           elementResizeEvent(this.realTable, this.onResize);
 
@@ -278,6 +276,9 @@
 
         var height = this.getSize(this.realTable).height + this.xScrollSize - this.stickyHeader.offsetHeight;
         this.yScrollbar.firstChild.style.height = height + 'px';
+
+        if (this.xScrollSize) this.xScrollbar.style.height = this.xScrollSize + 1 + 'px';
+        if (this.yScrollSize) this.yScrollbar.style.width = this.yScrollSize + 1 + 'px';
       }
     }, {
       key: 'setRowHeights',
@@ -292,7 +293,7 @@
               height = this.getSize(cellToCopy).height;
               this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
-              if (r === 0 && this.stickyCorner.firstChild.firstChild) {
+              if (r === 0 && this.stickyCorner.firstChild.childNodes[r]) {
                 this.stickyCorner.firstChild.firstChild.firstChild.style.height = height + 'px';
               }
             }

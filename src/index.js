@@ -45,8 +45,6 @@ class StickyTable extends PureComponent {
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
       this.setScrollData();
 
-      this.onScroll = this.handleScroll;
-
       elementResizeEvent(this.realTable, this.onResize);
 
       this.onResize();
@@ -88,6 +86,10 @@ class StickyTable extends PureComponent {
     this.yScrollbar.addEventListener('scroll', this.onScrollBarY);
   }
 
+  /**
+   * Set scroll data on resize for handle scroll events
+   * @returns {object} current scroll data object
+   */
   setScrollData = () => {
     this.suppressScrollX = false;
     this.suppressScrollY = false;
@@ -102,51 +104,75 @@ class StickyTable extends PureComponent {
     };
   }
 
+  /**
+   * Handle horizontal scroll wrapper X event
+   * @returns {null} no return necessary
+   */
   onScrollBarX = () => {
     if (!this.suppressScrollX) {
       this.scrollData.scrollLeft = this.xWrapper.scrollLeft = this.xScrollbar.scrollLeft;
       this.suppressScrollX = true;
     } else {
-      this.onScroll();
+      this.handleScroll();
       this.suppressScrollX = false;
     }
   }
 
+  /**
+   * Handle vertical scroll wrapper Y event
+   * @returns {null} no return necessary
+   */
   onScrollBarY = () => {
     if (!this.suppressScrollY) {
       this.scrollData.scrollTop = this.yWrapper.scrollTop = this.yScrollbar.scrollTop;
       this.suppressScrollY = true;
     } else {
-      this.onScroll();
+      this.handleScroll();
       this.suppressScrollY = false;
     }
   }
 
+  /**
+   * Handle horizontal scroll bar X event for header
+   * @returns {null} no return necessary
+   */
   onScrollX = () => {
     var scrollLeft = Math.max(this.xWrapper.scrollLeft, 0);
     this.stickyHeader.style.transform = 'translate(' + (-1 * scrollLeft) + 'px, 0)';
   }
 
+  /**
+   * Handle horizontal scroll bar X event
+   * @returns {null} no return necessary
+   */
   scrollXScrollbar = () => {
     if (!this.suppressScrollX) {
       this.scrollData.scrollLeft = this.xScrollbar.scrollLeft = this.xWrapper.scrollLeft;
       this.suppressScrollX = true;
     } else {
-      this.onScroll();
+      this.handleScroll();
       this.suppressScrollX = false;
     }
   }
 
+  /**
+   * Handle vertical scroll bar Y event
+   * @returns {null} no return necessary
+   */
   scrollYScrollbar = () => {
     if (!this.suppressScrollY) {
       this.scrollData.scrollTop = this.yScrollbar.scrollTop = this.yWrapper.scrollTop;
       this.suppressScrollY = true;
     } else {
-      this.onScroll();
+      this.handleScroll();
       this.suppressScrollY = false;
     }
   }
 
+  /**
+   * Handle scroll events
+   * @returns {null} no return necessary
+   */
   handleScroll = () => {
     if (this.props.onScroll) {
       this.props.onScroll(this.scrollData);
@@ -163,9 +189,13 @@ class StickyTable extends PureComponent {
     this.setScrollBarDims();
     this.setScrollBarWrapperDims();
     this.setScrollData();
-    this.onScroll();
+    this.handleScroll();
   }
 
+  /**
+   * Set 
+   * @returns {null} no return necessary
+   */
   setScrollBarPaddings() {
     var scrollPadding = '0px 0px ' + this.xScrollSize + 'px 0px';
     this.table.style.padding = scrollPadding;
@@ -175,12 +205,20 @@ class StickyTable extends PureComponent {
     this.xWrapper.firstChild.style.padding = scrollPadding;
   }
 
+  /**
+   * Set scroll bar wrappers size
+   * @returns {null} no return necessary
+   */
   setScrollBarWrapperDims = () => {
     this.xScrollbar.style.width = 'calc(100% - ' + this.yScrollSize + 'px)';
     this.yScrollbar.style.height = 'calc(100% - ' + this.stickyHeader.offsetHeight + 'px)';
     this.yScrollbar.style.top = this.stickyHeader.offsetHeight + 'px';
   }
 
+  /**
+   * Set visible scroll bar elements size 
+   * @return {null} no return necessary
+   */
   setScrollBarDims() {
     this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
     this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
@@ -194,6 +232,9 @@ class StickyTable extends PureComponent {
 
     var height = this.getSize(this.realTable).height + this.xScrollSize - this.stickyHeader.offsetHeight;
     this.yScrollbar.firstChild.style.height = height + 'px';
+
+    if (this.xScrollSize) this.xScrollbar.style.height = this.xScrollSize + 1 + 'px';
+    if (this.yScrollSize)  this.yScrollbar.style.width = this.yScrollSize + 1  + 'px';
   }
 
   /**
@@ -211,7 +252,7 @@ class StickyTable extends PureComponent {
           height = this.getSize(cellToCopy).height;
           this.stickyColumn.firstChild.childNodes[r].firstChild.style.height = height + 'px';
 
-          if (r === 0 && this.stickyCorner.firstChild.firstChild) {
+          if (r === 0 && this.stickyCorner.firstChild.childNodes[r]) {
             this.stickyCorner.firstChild.firstChild.firstChild.style.height = height + 'px';
           }
         }
