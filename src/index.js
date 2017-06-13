@@ -281,12 +281,13 @@ class StickyTable extends PureComponent {
           cell.style.width = width + 'px';
           cell.style.minWidth = width + 'px';
 
-          if (this.stickyCorner.firstChild.firstChild.childNodes[c]) {
-            cell = this.stickyCorner.firstChild.firstChild.childNodes[c];
+          const fixedColumnsHeader = this.stickyCorner.firstChild.firstChild;
+          if (fixedColumnsHeader && fixedColumnsHeader.childNodes[c]) {
+            cell = fixedColumnsHeader.childNodes[c];
             cell.style.width = width + 'px';
             cell.style.minWidth = width + 'px';
 
-            cell = this.stickyColumn.firstChild.firstChild.childNodes[c];
+            cell = fixedColumnsHeader.childNodes[c];
             cell.style.width = width + 'px';
             cell.style.minWidth = width + 'px';
 
