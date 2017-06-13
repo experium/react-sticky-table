@@ -395,18 +395,10 @@
         return stickyCorner;
       }
     }, {
-      key: 'getStyle',
-      value: function getStyle(node) {
-        var browserSupportsComputedStyle = typeof getComputedStyle !== 'undefined';
-
-        return browserSupportsComputedStyle ? getComputedStyle(node, null) : node.currentStyle;
-      }
-    }, {
       key: 'getSize',
       value: function getSize(node) {
-        var nodeStyle = this.getStyle(node);
-        var width = node.getBoundingClientRect().width;
-        var height = node.getBoundingClientRect().height;
+        var width = node ? node.getBoundingClientRect().width : 0;
+        var height = node ? node.getBoundingClientRect().height : 0;
 
         return { width: width, height: height };
       }
