@@ -398,7 +398,7 @@
       value: function getStyle(node) {
         var browserSupportsComputedStyle = typeof getComputedStyle !== 'undefined';
 
-        return browserSupportsComputedStyle ? getComputedStyle(node, null) : node.currentStyle;
+        return node.currentStyle;
       }
     }, {
       key: 'getSize',
