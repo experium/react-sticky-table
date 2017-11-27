@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { resizeListen, resizeUnlisten } from 'dom-resize';
 
 import Table from './Table';
 import Row from './Row';
 import Cell from './Cell';
+
+const elementResizeEvent = require('element-resize-event');
 
 /**
  * StickyTable Component
@@ -57,7 +58,7 @@ class StickyTable extends PureComponent {
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
       this.setScrollData();
 
-      resizeListen(this.tableContainer, this.onResize);
+      elementResizeEvent(this.tableContainer, this.onResize);
 
       this.onResize();
       setTimeout(this.onResize);
@@ -78,7 +79,7 @@ class StickyTable extends PureComponent {
       this.yWrapper.removeEventListener('scroll', this.scrollYScrollbar);
       this.yScrollbar.removeEventListener('scroll', this.onScrollBarY);
 
-      resizeUnlisten(this.realTable);
+      elementResizeEvent.unbind(this.tableContainer);
     }
   }
 
