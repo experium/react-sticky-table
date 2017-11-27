@@ -12,8 +12,9 @@ jobs:
       - npm install
       - npm run build
       deploy:
+        skip_cleanup: true
         provider: npm
         email: "webdev@experium.ru"
         api_key: $NPM_API_KEY
         on:
-          tags: true
+          branch: master

@@ -1,9 +1,14 @@
 import React from 'react';
+import 'babel-polyfill';
+import 'raf/polyfill';
 
-import {mount} from 'enzyme';
+import Enzyme, {mount} from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import {expect} from 'chai';
 
 import {StickyTable, Row, Cell} from '../index';
+
+Enzyme.configure({ adapter: new Adapter() });
 
 describe('StickyTable', () => {
   it('should render the correct number of children', () => {
