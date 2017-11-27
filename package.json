@@ -1,6 +1,6 @@
 {
   "name": "experium-react-sticky-table",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "index.js",
   "module": "./index.js",
   "description": "Dynamically sized fixed header and columns for tables",
@@ -79,6 +79,6 @@
     "prop-types": "^15.0.0"
   },
   "dependencies": {
-    "dom-resize": "^1.0.3"
+    "element-resize-event": "^2.0.9"
   }
 }
