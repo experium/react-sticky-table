@@ -15,11 +15,11 @@ const defaultStyle = {
 
 class Example extends Component {
     state = {
-        colsCount: 4,
-        rowsCount: 10,
+        colsCount: 34,
+        rowsCount: 20,
         renderTable: true,
-        autoWidthTable: true,
-        locked: 0
+        autoWidthTable: false,
+        locked: 2
     };
 
     handleLocked = (inc) => {
@@ -58,9 +58,11 @@ class Example extends Component {
 
             for (var c = 1; c <= colsCount; c++) {
                 cells.push(
-                    <Cell style={{width: c === 2 ? '': '70px'}} key={c}>
-                        { r == 1 && `Column${c}` }
-                        { r != 1 && `Cell ${c} of row ${r}`}
+                    <Cell style={{ width: c === 2 ? '': '70px' }} key={c}>
+                        <div style={{ height: 30 + ((r + 1) * 5) }}>
+                            { r == 1 && `Column${c}` }
+                            { r != 1 && `Cell ${c} of row ${r}`}
+                        </div>
                     </Cell>
                 );
             }

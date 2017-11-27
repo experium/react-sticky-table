@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
-var elementResizeEvent = require('element-resize-event');
+import { resizeListen, resizeUnlisten } from 'dom-resize';
 
 import Table from './Table';
 import Row from './Row';
@@ -47,7 +46,8 @@ class StickyTable extends PureComponent {
     this.table = document.getElementById('sticky-table-' + this.id);
 
     if (this.table) {
-      this.realTable = this.table.querySelector('#sticky-table-x-wrapper').firstChild;
+      this.tableContainer = this.table.querySelector('#sticky-table-x-wrapper').firstChild;
+      this.realTable = this.tableContainer.firstChild;
       this.xScrollbar = this.table.querySelector('#x-scrollbar');
       this.yScrollbar = this.table.querySelector('#y-scrollbar');
       this.xWrapper = this.table.querySelector('#sticky-table-x-wrapper');
@@ -57,7 +57,7 @@ class StickyTable extends PureComponent {
       this.stickyCorner = this.table.querySelector('#sticky-table-corner');
       this.setScrollData();
 
-      elementResizeEvent(this.realTable, this.onResize);
+      resizeListen(this.tableContainer, this.onResize);
 
       this.onResize();
       setTimeout(this.onResize);
@@ -77,8 +77,8 @@ class StickyTable extends PureComponent {
 
       this.yWrapper.removeEventListener('scroll', this.scrollYScrollbar);
       this.yScrollbar.removeEventListener('scroll', this.onScrollBarY);
-  
-      elementResizeEvent.unbind(this.realTable);
+
+      resizeUnlisten(this.realTable);
     }
   }
 
@@ -207,7 +207,7 @@ class StickyTable extends PureComponent {
   }
 
   /**
-   * Set 
+   * Set
    * @returns {null} no return necessary
    */
   setScrollBarPaddings() {
@@ -229,13 +229,13 @@ class StickyTable extends PureComponent {
   }
 
   /**
-   * Set visible scroll bar elements size 
+   * Set visible scroll bar elements size
    * @return {null} no return necessary
    */
   setScrollBarDims() {
     this.xScrollSize = this.xScrollbar.offsetHeight - this.xScrollbar.clientHeight;
     this.yScrollSize = this.yScrollbar.offsetWidth - this.yScrollbar.clientWidth;
-    
+
     if (!this.isFirefox) {
       this.setScrollBarPaddings();
     }
@@ -435,7 +435,9 @@ class StickyTable extends PureComponent {
             <Table>{stickyColumn}</Table>
           </div>
           <div className='sticky-table-x-wrapper' id='sticky-table-x-wrapper'>
-            <Table>{rows}</Table>
+            <div>
+              <Table>{rows}</Table>
+            </div>
           </div>
         </div>
       </div>
