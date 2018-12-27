@@ -1,7 +1,7 @@
 language: node_js
 node_js: stable
 
-before_script: npm install
+before_script: yarn install
 script: npm run test
 
 jobs:
@@ -9,8 +9,8 @@ jobs:
     - stage: npm release
       node_js: stable
       before_deploy:
-      - npm install
-      - npm run build
+      - yarn install
+      - yarn build
       deploy:
         skip_cleanup: true
         provider: npm
